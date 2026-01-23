@@ -1,0 +1,34 @@
+MEMAO SPRITE SHEET CREATOR - LICENSE AGREEMENT
+Copyright © Sleeping Robot Games
+
+By purchasing, downloading, or using the Memao Sprite Sheet Creator (the "Tool"), you agree to the terms of this License Agreement.
+
+---
+
+PERMITTED USES:
+- You may use the Tool and all included assets in personal and commercial game projects.
+- You may edit or modify the exported sprites to fit your project’s needs.
+- You may include exported sprite sheets in game engines or other tools as part of your game's assets.
+- You may publicly share or distribute games or media that use customized sprite sheets created with the Tool.
+- You may install the Tool on multiple devices for your own use.
+- Credit to "Memao" is appreciated and encouraged.
+
+---
+
+RESTRICTED USES:
+- You may NOT resell, redistribute, or share the Memao Sprite Sheet Creator itself, in part or in whole or the Assets associated.
+- You may NOT resell, redistribute, or share the sprite sheets exported from the Tool, whether edited or unedited, as standalone assets.
+- You may NOT use any part of the Tool or its assets for training generative AI models or any AI-related services.
+- You may NOT use the Tool or any exported assets in crypto-related, blockchain, or NFT projects.
+
+---
+
+ADDITIONAL TERMS:
+- This license grants you a non-exclusive, non-transferable right to use the Tool and its assets under the conditions above.
+- All rights not expressly granted herein are reserved by Sleeping Robot Games.
+- This license may be updated over time. The version included with your purchase remains valid for your use.
+
+---
+
+For questions or licensing inquiries, contact:
+support@sleepingrobotgames.com
