@@ -11,6 +11,7 @@ import {
   clothingColors,
   getColorGroupForLayer
 } from "./colorConfig";
+import { randomizeCharacter, randomizeColors } from "./creationUtils";
 
 // Y offset for preview thumbnails (in pixels, negative = up, positive = down)
 const previewOffsets: Record<string, number> = {
@@ -100,13 +101,19 @@ const CharacterCreator = () => {
     return clothingColors;
   };
 
-  console.log('clothingTab:', clothingTab);
-  console.log('colorGroup:', colorGroup);
-  console.log('currentColor:', currentColor);
-
   return (
     <div className="max-w-4xl mx-auto py-4 pr-4 dark:bg-neutral-900 h-full w-full rounded-xl max-h-[80vh] flex flex-col">
-      <h1 className="text-3xl mb-4 dark:text-neutral-100 pl-4">Character Creator</h1>
+      <div className="flex justify-between">
+        <h1 className="text-3xl mb-4 dark:text-neutral-100 pl-4">Character Creator</h1>
+        <div className="p-3">
+          <div onClick={() => {
+            setSelectedClothes(randomizeCharacter() as typeof defaultAssets);
+            setColors(randomizeColors());
+          }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+            Randomize
+          </div>
+        </div>
+      </div>
       <hr className="dark:border-neutral-800"/>
       <div className="flex flex-row w-full flex-1 gap-4">
         {/* Asset selector panel */}
@@ -176,7 +183,7 @@ const CharacterCreator = () => {
         >
           <div className="absolute inset-0 bg-neutral-800 opacity-30 z-0"></div>
             <div className="relative z-10 w-64 h-64">
-            <CharacterDisplay {...selectedClothes} colors={colors} />
+              <CharacterDisplay {...selectedClothes} colors={colors} />
             </div>
         </div>
       </div>
