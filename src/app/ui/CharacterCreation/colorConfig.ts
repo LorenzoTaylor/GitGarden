@@ -1,7 +1,8 @@
 // Color groups for different body/clothing parts
 export const colorGroups = {
-    skin: ['body', 'head', 'face', 'ears', 'arms'],
+    skin: ['body', 'head', 'ears', 'arms'],
     hair: ['hairA', 'hairB', 'hairC', 'hairD', 'eyebrows'],
+    face: ['face'],  // Facial hair - uses hair colors
     eyes: ['eyes'],
     horns: ['horns'],
     backA: ['backA'],
@@ -25,6 +26,7 @@ export type ColorGroupKey = keyof typeof colorGroups;
 export const defaultColors: Record<ColorGroupKey, string> = {
     skin: '#e8b89d',
     hair: '#4a3728',
+    face: '#4a3728',  // Facial hair - default to hair color
     eyes: '#3d85c6',
     horns: '#4a3728',
     backA: '#2563eb',
