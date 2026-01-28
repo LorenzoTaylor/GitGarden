@@ -3,6 +3,8 @@ export const colorGroups = {
     skin: ['body', 'head', 'face', 'ears', 'arms'],
     hair: ['hairA', 'hairB', 'hairC', 'hairD', 'eyebrows'],
     eyes: ['eyes'],
+    horns: ['horns'],
+    backA: ['backA'],
     topA: ['topA'],
     topB: ['topB'],
     bottomA: ['bottomA'],
@@ -24,6 +26,8 @@ export const defaultColors: Record<ColorGroupKey, string> = {
     skin: '#e8b89d',
     hair: '#4a3728',
     eyes: '#3d85c6',
+    horns: '#4a3728',
+    backA: '#2563eb',
     topA: '#c45c5c',
     topB: '#8b3a3a',
     bottomA: '#4a5568',
@@ -40,12 +44,12 @@ export const defaultColors: Record<ColorGroupKey, string> = {
 };
 
 export const skinTones = [
-    { name: 'Light', color: '#fde7d9' },
-    { name: 'Peach', color: '#e8b89d' },
-    { name: 'Medium', color: '#c49a6c' },
-{ name: 'Tan', color: '#9b6b43' },
-    { name: 'Brown', color: '#5c3d2e' },
-    { name: 'Dark', color: '#3b2219' },
+    { name: 'Light', color: '#f6e2d6' },
+    { name: 'Peach', color: '#f8cbc1' },
+    { name: 'Medium', color: '#e9b689' },
+{ name: 'Tan', color: '#c29068' },
+    { name: 'Brown', color: '#925638' },
+    { name: 'Dark', color: '#6d3740' },
 ];
 
 // Preset hair colors
