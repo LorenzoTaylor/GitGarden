@@ -41,6 +41,7 @@ export function randomizeColors(): Record<ColorGroupKey, string> {
     return {
         skin: randomFromArray(skinTones).color,
         hair: randomFromArray(hairColors).color,
+        face: randomFromArray(hairColors).color,  // Facial hair uses hair colors
         eyes: randomFromArray(eyeColors).color,
         horns: randomFromArray(clothingColors).color,
         backA: randomFromArray(clothingColors).color,
