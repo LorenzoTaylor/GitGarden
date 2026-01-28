@@ -5,12 +5,9 @@ export const defaultAssets = {
     accessoryD: '/assets/AccessoryD/accessoryd_000.png',
     arms: '/assets/Arms/arms_001.png',
     backA: '/assets/BackA/backa_000.png',
-    backB: '/assets/BackB/backb_000.png',
     body: '/assets/Body/body_001.png',
     bottomA: '/assets/BottomA/bottoma_001.png',
     bottomB: '/assets/BottomB/bottomb_000.png',
-    chopA: '/assets/ChopA/chopa_000.png',
-    chopB: '/assets/ChopB/chopb_000.png',
     ears: '/assets/Ears/ears_000.png',
     eyebrows: '/assets/Eyebrows/eyebrows_000.png',
     eyes: '/assets/Eyes/eyes_001.png',
@@ -25,17 +22,12 @@ export const defaultAssets = {
     jacketA: '/assets/JacketA/jacketa_000.png',
     jacketB: '/assets/JacketB/jacketb_000.png',
     mid: '/assets/Mid/mid_000.png',
-    reap: '/assets/Reap/reap_000.png',
-    seed: '/assets/Seed/seed_000.png',
     shoes: '/assets/Shoes/shoes_001.png',
     shoulderA: '/assets/ShoulderA/shouldera_000.png',
     shoulderB: '/assets/ShoulderB/shoulderb_000.png',
     socks: '/assets/Socks/socks_000.png',
-    strikeA: '/assets/StrikeA/strikea_000.png',
-    strikeB: '/assets/StrikeB/strikeb_000.png',
     topA: '/assets/TopA/topa_001.png',
     topB: '/assets/TopB/topb_000.png',
-    water: '/assets/Water/water_000.png',
 }
 
 export const assetRegistry = {
@@ -96,11 +88,6 @@ export const assetRegistry = {
         { id: 'backa_001', name: 'Back A 1', url: '/assets/BackA/backa_001.png' },
         { id: 'backa_002', name: 'Back A 2', url: '/assets/BackA/backa_002.png' },
     ],
-    backB: [
-        { id: 'backb_000', name: 'Back B 0', url: '/assets/BackB/backb_000.png' },
-        { id: 'backb_001', name: 'Back B 1', url: '/assets/BackB/backb_001.png' },
-        { id: 'backb_002', name: 'Back B 2', url: '/assets/BackB/backb_002.png' },
-    ],
     body: [
         { id: 'body_001', name: 'Body', url: '/assets/Body/body_001.png' },
     ],
@@ -124,14 +111,6 @@ export const assetRegistry = {
         { id: 'bottomb_007', name: 'Bottom B 7', url: '/assets/BottomB/bottomb_007.png' },
         { id: 'bottomb_008', name: 'Bottom B 8', url: '/assets/BottomB/bottomb_008.png' },
         { id: 'bottomb_009', name: 'Bottom B 9', url: '/assets/BottomB/bottomb_009.png' },
-    ],
-    chopA: [
-        { id: 'chopa_000', name: 'Chop A 0', url: '/assets/ChopA/chopa_000.png' },
-        { id: 'chopa_001', name: 'Chop A 1', url: '/assets/ChopA/chopa_001.png' },
-    ],
-    chopB: [
-        { id: 'chopb_000', name: 'Chop B 0', url: '/assets/ChopB/chopb_000.png' },
-        { id: 'chopb_001', name: 'Chop B 1', url: '/assets/ChopB/chopb_001.png' },
     ],
     ears: [
         { id: 'ears_000', name: 'Ears 0', url: '/assets/Ears/ears_000.png' },
@@ -305,14 +284,6 @@ export const assetRegistry = {
         { id: 'mid_004', name: 'Mid 4', url: '/assets/Mid/mid_004.png' },
         { id: 'mid_005', name: 'Mid 5', url: '/assets/Mid/mid_005.png' },
     ],
-    reap: [
-        { id: 'reap_000', name: 'Reap 0', url: '/assets/Reap/reap_000.png' },
-        { id: 'reap_001', name: 'Reap 1', url: '/assets/Reap/reap_001.png' },
-    ],
-    seed: [
-        { id: 'seed_000', name: 'Seed 0', url: '/assets/Seed/seed_000.png' },
-        { id: 'seed_001', name: 'Seed 1', url: '/assets/Seed/seed_001.png' },
-    ],
     shoes: [
         { id: 'shoes_001', name: 'Shoes 1', url: '/assets/Shoes/shoes_001.png' },
         { id: 'shoes_002', name: 'Shoes 2', url: '/assets/Shoes/shoes_002.png' },
@@ -336,18 +307,6 @@ export const assetRegistry = {
         { id: 'socks_001', name: 'Socks 1', url: '/assets/Socks/socks_001.png' },
         { id: 'socks_002', name: 'Socks 2', url: '/assets/Socks/socks_002.png' },
         { id: 'socks_003', name: 'Socks 3', url: '/assets/Socks/socks_003.png' },
-    ],
-    strikeA: [
-        { id: 'strikea_000', name: 'Strike A 0', url: '/assets/StrikeA/strikea_000.png' },
-        { id: 'strikea_001', name: 'Strike A 1', url: '/assets/StrikeA/strikea_001.png' },
-        { id: 'strikea_002', name: 'Strike A 2', url: '/assets/StrikeA/strikea_002.png' },
-        { id: 'strikea_003', name: 'Strike A 3', url: '/assets/StrikeA/strikea_003.png' },
-    ],
-    strikeB: [
-        { id: 'strikeb_000', name: 'Strike B 0', url: '/assets/StrikeB/strikeb_000.png' },
-        { id: 'strikeb_001', name: 'Strike B 1', url: '/assets/StrikeB/strikeb_001.png' },
-        { id: 'strikeb_002', name: 'Strike B 2', url: '/assets/StrikeB/strikeb_002.png' },
-        { id: 'strikeb_003', name: 'Strike B 3', url: '/assets/StrikeB/strikeb_003.png' },
     ],
     topA: [
         { id: 'topa_001', name: 'Top A 1', url: '/assets/TopA/topa_001.png' },
@@ -394,9 +353,5 @@ export const assetRegistry = {
         { id: 'topb_028', name: 'Top B 28', url: '/assets/TopB/topb_028.png' },
         { id: 'topb_029', name: 'Top B 29', url: '/assets/TopB/topb_029.png' },
         { id: 'topb_030', name: 'Top B 30', url: '/assets/TopB/topb_030.png' },
-    ],
-    water: [
-        { id: 'water_000', name: 'Water 0', url: '/assets/Water/water_000.png' },
-        { id: 'water_001', name: 'Water 1', url: '/assets/Water/water_001.png' },
     ],
 }
