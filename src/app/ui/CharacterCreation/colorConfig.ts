@@ -39,12 +39,11 @@ export const defaultColors: Record<ColorGroupKey, string> = {
     accessoryD: '#b45309',
 };
 
-// Preset skin tones
 export const skinTones = [
     { name: 'Light', color: '#fde7d9' },
     { name: 'Peach', color: '#e8b89d' },
-    { name: 'Medium', color: '#c68642' },
-    { name: 'Tan', color: '#8d5524' },
+    { name: 'Medium', color: '#c49a6c' },
+{ name: 'Tan', color: '#9b6b43' },
     { name: 'Brown', color: '#5c3d2e' },
     { name: 'Dark', color: '#3b2219' },
 ];

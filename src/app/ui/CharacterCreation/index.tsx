@@ -12,6 +12,46 @@ import {
   getColorGroupForLayer
 } from "./colorConfig";
 
+// Y offset for preview thumbnails (in pixels, negative = up, positive = down)
+const previewOffsets: Record<string, number> = {
+  // Head area (high on sprite)
+  horns: 12,
+  ears: 6,
+  eyes: 6,
+  eyebrows: 0,
+  face: 4,
+  head: 7,
+  // Hair (slightly lower than face)
+  hairA: 10,
+  hairB: 10,
+  hairC: 10,
+  hairD: 1,
+  // Body/torso area
+  body: 0,
+  arms: -5,
+  // Tops
+  topA: -3,
+  topB: -3,
+  mid: -7,
+  jacketA: -3,
+  jacketB: -3,
+  shoulderA: -2,
+  shoulderB: -4,
+  // Accessories
+  accessoryA: 5,
+  accessoryB: 11,
+  accessoryC: -1,
+  accessoryD: 11,
+  backA: -1,
+  // Bottoms
+  bottomA: -10,
+  bottomB: -4,
+  // Feet (lowest)
+  socks: -14,
+  shoes: -15,
+  gloves: -7,
+};
+
 // Color selector component
 const ColorSelector = ({
   colors,
@@ -75,7 +115,14 @@ const CharacterCreator = () => {
           <ul className="w-full space-y-1">
             {Object.keys(assetRegistry).map((category) => (
               <div key={category} className="flex items-center gap-2 p-1 hover:bg-neutral-600 rounded cursor-pointer" onClick={() => {setClothingTab(category as ColorGroupKey)}}>
-                <img src={assetRegistry[category][0]?.url} alt={category} className="w-10 h-10 [image-rendering:pixelated]"/>
+                <div className="w-10 h-10 overflow-hidden relative">
+                  <img
+                    src={(assetRegistry as Record<string, {url: string}[]>)[category][0]?.url}
+                    alt={category}
+                    className="absolute w-full h-full [image-rendering:pixelated] object-none scale-[2.5] origin-center"
+                    style={{ objectPosition: `3px ${(previewOffsets[category] ?? 0) * 0.6}px` }}
+                  />
+                </div>
                 <span className="text-sm dark:text-neutral-200">{category}</span>
               </div>
             ))}
@@ -86,7 +133,7 @@ const CharacterCreator = () => {
         <div className="flex-1 bg-neutral-700 p-4 overflow-y-auto max-h-[60vh] h-full rounded-lg flex flex-col items-center">
           <h3 className="text-sm font-medium dark:text-neutral-300 mb-2 capitalize text-center">{clothingTab}</h3>
           <div className="flex flex-wrap gap-2 justify-center w-full">
-            {assetRegistry[clothingTab]?.map((asset) => (
+            {(assetRegistry as Record<string, {id: string; name: string; url: string}[]>)[clothingTab]?.map((asset) => (
                 <button
                 key={asset.id}
                 onClick={() => setSelectedClothes(prev => ({ ...prev, [clothingTab]: asset.url }))}
@@ -99,7 +146,8 @@ const CharacterCreator = () => {
                 <img
                   src={asset.url}
                   alt={asset.name}
-                  className="absolute w-full h-full [image-rendering:pixelated] object-none object-[6px_0] scale-[4] origin-center"
+                  className="absolute w-full h-full [image-rendering:pixelated] object-none scale-[4] origin-center"
+                  style={{ objectPosition: `6px ${previewOffsets[clothingTab] ?? 0}px` }}
                 />
                 </button>
             ))}
@@ -127,7 +175,7 @@ const CharacterCreator = () => {
           }}
         >
           <div className="absolute inset-0 bg-neutral-800 opacity-30 z-0"></div>
-            <div className="relative z-10 w-64 h-64" style={{ marginLeft: '35%' }}>
+            <div className="relative z-10 w-64 h-64">
             <CharacterDisplay {...selectedClothes} colors={colors} />
             </div>
         </div>

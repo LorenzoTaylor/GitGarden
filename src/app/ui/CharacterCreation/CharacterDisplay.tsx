@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import type { ColorGroupKey } from './colorConfig';
 import { getColorForLayer } from './colorConfig';
+import { useCharacterCanvas, type LayerConfig } from './useCharacterCanvas';
 
 interface CharacterDisplayProps {
     accessoryA: string
@@ -8,12 +10,9 @@ interface CharacterDisplayProps {
     accessoryD: string
     arms: string
     backA: string
-    backB: string
     body: string
     bottomA: string
     bottomB: string
-    chopA: string
-    chopB: string
     ears: string
     eyebrows: string
     eyes: string
@@ -28,122 +27,86 @@ interface CharacterDisplayProps {
     jacketA: string
     jacketB: string
     mid: string
-    reap: string
-    seed: string
     shoes: string
     shoulderA: string
     shoulderB: string
     socks: string
-    strikeA: string
-    strikeB: string
     topA: string
     topB: string
-    water: string
     colors: Record<ColorGroupKey, string>
 }
 
 const CharacterDisplay = (props: CharacterDisplayProps) => {
     const { colors, ...assets } = props;
 
-    // Layer order from back to front
-    const layers = [
-        { key: 'backA', z: 1 },
-        { key: 'backB', z: 2 },
-        { key: 'body', z: 10 },
-        { key: 'head', z: 11 },
-        { key: 'face', z: 12 },
-        { key: 'ears', z: 13 },
-        { key: 'eyes', z: 14 },
-        { key: 'eyebrows', z: 15 },
-        { key: 'hairA', z: 20 },
-        { key: 'hairB', z: 21 },
-        { key: 'hairC', z: 22 },
-        { key: 'hairD', z: 23 },
-        { key: 'horns', z: 24 },
-        { key: 'arms', z: 30 },
-        { key: 'gloves', z: 31 },
-        { key: 'socks', z: 40 },
-        { key: 'shoes', z: 41 },
-        { key: 'bottomA', z: 50 },
-        { key: 'bottomB', z: 51 },
-        { key: 'topA', z: 60 },
-        { key: 'topB', z: 61 },
-        { key: 'mid', z: 62 },
-        { key: 'jacketA', z: 70 },
-        { key: 'jacketB', z: 71 },
-        { key: 'shoulderA', z: 72 },
-        { key: 'shoulderB', z: 73 },
-        { key: 'accessoryA', z: 80 },
-        { key: 'accessoryB', z: 81 },
-        { key: 'accessoryC', z: 82 },
-        { key: 'accessoryD', z: 83 },
-        { key: 'chopA', z: 90 },
-        { key: 'chopB', z: 91 },
-        { key: 'strikeA', z: 92 },
-        { key: 'strikeB', z: 93 },
-        { key: 'reap', z: 94 },
-        { key: 'seed', z: 95 },
-        { key: 'water', z: 96 },
-    ];
+    const layers: LayerConfig[] = useMemo(() => [
+        // Back layers
+        { key: 'backA', z: 1, src: assets.backA, color: getColorForLayer('backA', colors) },
+        // Body & head
+        { key: 'body', z: 10, src: assets.body, color: getColorForLayer('body', colors) },
+        { key: 'head', z: 11, src: assets.head, color: getColorForLayer('head', colors) },
+        { key: 'face', z: 12, src: assets.face, color: getColorForLayer('face', colors) },
+        { key: 'ears', z: 13, src: assets.ears, color: getColorForLayer('ears', colors) },
+        { key: 'horns', z: 14, src: assets.horns, color: getColorForLayer('horns', colors) },
+        { key: 'eyes', z: 15, src: assets.eyes, color: getColorForLayer('eyes', colors) },
+        { key: 'eyebrows', z: 16, src: assets.eyebrows, color: getColorForLayer('eyebrows', colors) },
+        // Hair
+        { key: 'hairA', z: 20, src: assets.hairA, color: getColorForLayer('hairA', colors) },
+        { key: 'hairB', z: 21, src: assets.hairB, color: getColorForLayer('hairB', colors) },
+        { key: 'hairC', z: 22, src: assets.hairC, color: getColorForLayer('hairC', colors) },
+        { key: 'hairD', z: 23, src: assets.hairD, color: getColorForLayer('hairD', colors) },
+        // Arms & gloves
+        { key: 'arms', z: 30, src: assets.arms, color: getColorForLayer('arms', colors) },
+        { key: 'gloves', z: 31, src: assets.gloves, color: getColorForLayer('gloves', colors) },
+        // Legs & feet
+        { key: 'socks', z: 40, src: assets.socks, color: getColorForLayer('socks', colors) },
+        { key: 'shoes', z: 41, src: assets.shoes, color: getColorForLayer('shoes', colors) },
+        // Clothing - bottom
+        { key: 'bottomA', z: 50, src: assets.bottomA, color: getColorForLayer('bottomA', colors) },
+        { key: 'bottomB', z: 51, src: assets.bottomB, color: getColorForLayer('bottomB', colors) },
+        // Clothing - mid & top
+        { key: 'mid', z: 55, src: assets.mid, color: getColorForLayer('mid', colors) },
+        { key: 'topA', z: 60, src: assets.topA, color: getColorForLayer('topA', colors) },
+        { key: 'topB', z: 61, src: assets.topB, color: getColorForLayer('topB', colors) },
+        // Jackets & shoulders
+        { key: 'jacketA', z: 65, src: assets.jacketA, color: getColorForLayer('jacketA', colors) },
+        { key: 'jacketB', z: 66, src: assets.jacketB, color: getColorForLayer('jacketB', colors) },
+        { key: 'shoulderA', z: 67, src: assets.shoulderA, color: getColorForLayer('shoulderA', colors) },
+        { key: 'shoulderB', z: 68, src: assets.shoulderB, color: getColorForLayer('shoulderB', colors) },
+        // Accessories
+        { key: 'accessoryA', z: 70, src: assets.accessoryA, color: getColorForLayer('accessoryA', colors) },
+        { key: 'accessoryB', z: 71, src: assets.accessoryB, color: getColorForLayer('accessoryB', colors) },
+        { key: 'accessoryC', z: 72, src: assets.accessoryC, color: getColorForLayer('accessoryC', colors) },
+        { key: 'accessoryD', z: 73, src: assets.accessoryD, color: getColorForLayer('accessoryD', colors) },
+    ], [assets, colors]);
+
+    const { canvasRef, isLoading } = useCharacterCanvas({
+        layers,
+        width: 48,
+        height: 48,
+        frameX: 0,
+        frameY: 0,
+        scale: 7,
+        canvasWidth: 240,
+        canvasHeight: 280,
+    });
 
     return (
-        <div className="relative w-64 h-64">
-            <div className="absolute inset-0 origin-center flex items-center justify-center">
-                <div className="relative w-16 h-16">
-                    {layers.map(({ key, z }) => {
-                        const src = assets[key as keyof typeof assets];
-                        const color = getColorForLayer(key, colors);
-
-                        if (color) {
-                            // Use blend mode to colorize while preserving outlines/highlights
-                            // isolation: isolate prevents blend from affecting layers below
-                            return (
-                                <div
-                                    key={key}
-                                    className="absolute inset-0 w-full h-full scale-[8] origin-center"
-                                    style={{ zIndex: z, isolation: 'isolate' }}
-                                >
-                                    {/* Base sprite with details */}
-                                    <img
-                                        src={src}
-                                        alt={key}
-                                        className="absolute [image-rendering:pixelated] object-none object-[0_0]"
-                                    />
-                                    {/* Color overlay with multiply blend */}
-                                    <div
-                                        className="absolute inset-0 [image-rendering:pixelated]"
-                                        style={{
-                                            backgroundColor: color,
-                                            mixBlendMode: 'multiply',
-                                            WebkitMaskImage: `url(${src})`,
-                                            WebkitMaskRepeat: 'no-repeat',
-                                            WebkitMaskSize: 'auto',
-                                            WebkitMaskPosition: '0 0',
-                                            maskImage: `url(${src})`,
-                                            maskRepeat: 'no-repeat',
-                                            maskSize: 'auto',
-                                            maskPosition: '0 0',
-                                        }}
-                                    />
-                                </div>
-                            );
-                        } else {
-                            // Use regular img for non-colorable layers (tools, etc.)
-                            return (
-                                <img
-                                    key={key}
-                                    src={src}
-                                    alt={key}
-                                    className="absolute inset-0 w-full h-full [image-rendering:pixelated] object-none object-[0_0] scale-[8] origin-center"
-                                    style={{ zIndex: z }}
-                                />
-                            );
-                        }
-                    })}
+        <div className="relative w-64 h-64 flex items-center justify-center">
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
                 </div>
-            </div>
+            )}
+            <canvas
+                ref={canvasRef}
+                width={240}
+                height={280}
+                className="[image-rendering:pixelated]"
+                style={{ opacity: isLoading ? 0 : 1 }}
+            />
         </div>
-    )
-}
+    );
+};
 
-export default CharacterDisplay
+export default CharacterDisplay;
