@@ -171,7 +171,6 @@ export function colorizeSprite(
   width: number,
   height: number,
   mode: ColorizeMode = 'normal',
-  _shadowStrength: number = 0.7
 ): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = width;

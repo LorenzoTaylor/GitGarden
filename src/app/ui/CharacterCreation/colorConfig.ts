@@ -88,7 +88,7 @@ export const clothingColors = [
 
 export const getColorForLayer = (layerKey: string, colors: Record<ColorGroupKey, string>): string | null => {
   for (const [groupKey, layers] of Object.entries(colorGroups)) {
-    if (layers.includes(layerKey)) {
+    if ((layers as readonly string[]).includes(layerKey)) {
       return colors[groupKey as ColorGroupKey];
     }
   }
