@@ -105,8 +105,7 @@ export function useCharacterCanvas({
                 frameY,
                 width,
                 height,
-                layer.mode ?? 'normal',
-                layer.shadowStrength ?? 0.6
+                layer.mode ?? 'normal'
               );
             } else {
               layerCanvas = extractFrame(img, frameX, frameY, width, height);
