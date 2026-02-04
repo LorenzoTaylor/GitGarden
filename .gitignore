@@ -49,3 +49,13 @@ coverage/
 .cache/
 .eslintcache
 .turbo/
+
+# Rust
+/target
+**/*.rs.bk
+*.pdb
+Cargo.lock
+**/*.so
+**/*.dylib
+**/*.dll
+.cargo/
