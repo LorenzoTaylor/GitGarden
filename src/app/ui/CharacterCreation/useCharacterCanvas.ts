@@ -40,13 +40,9 @@ export function useCharacterCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Cache for loaded images
   const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
-  // Cache for colorized layers
   const colorizedCache = useRef<Map<string, HTMLCanvasElement>>(new Map());
 
-  // Sort layers by z-index for correct rendering order
   const sortedLayers = useMemo(
     () => [...layers].sort((a, b) => a.z - b.z),
     [layers]
@@ -69,7 +65,6 @@ export function useCharacterCanvas({
       setError(null);
 
       try {
-        // Load all unique images
         const uniqueSrcs = [...new Set(sortedLayers.map(l => l.src))];
         await Promise.all(
           uniqueSrcs.map(async (src) => {
@@ -84,13 +79,9 @@ export function useCharacterCanvas({
 
         if (cancelled) return;
 
-        // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Disable image smoothing for crisp pixel art
         ctx.imageSmoothingEnabled = false;
 
-        // Calculate centering offset
         const drawWidth = width * scale;
         const drawHeight = height * scale;
         const actualCanvasWidth = canvasWidth ?? drawWidth;
@@ -98,7 +89,6 @@ export function useCharacterCanvas({
         const offsetX = Math.floor((actualCanvasWidth - drawWidth) / 2);
         const offsetY = Math.floor((actualCanvasHeight - drawHeight) / 2);
 
-        // Process and draw each layer
         for (const layer of sortedLayers) {
           const img = imageCache.current.get(layer.src);
           if (!img) continue;
@@ -107,7 +97,6 @@ export function useCharacterCanvas({
           let layerCanvas = colorizedCache.current.get(cacheKey);
 
           if (!layerCanvas) {
-            // Create and cache the colorized (or extracted) layer
             if (layer.color) {
               layerCanvas = colorizeSprite(
                 img,
@@ -125,7 +114,6 @@ export function useCharacterCanvas({
             colorizedCache.current.set(cacheKey, layerCanvas);
           }
 
-          // Draw the layer to the main canvas (scaled and centered)
           ctx.drawImage(layerCanvas, 0, 0, width, height, offsetX, offsetY, drawWidth, drawHeight);
         }
 
