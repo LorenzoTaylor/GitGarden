@@ -1,9 +1,14 @@
-use axum::routing::get;
+use axum::routing::{get, post};
+use sqlx::PgPool;
+
+mod outfit;
 mod render;
 
-pub fn app_router() -> axum::Router {
-
-  axum::Router::new()
-    .route("/hello", get(|| async { "Hello, World!" }))
-    .nest("/", render::create_render_routes())
+pub fn app_router(pool: PgPool) -> axum::Router {
+    axum::Router::new()
+        .route("/hello", get(|| async { "Hello, World!" }))
+        .route("/outfit/{uuid}", get(outfit::get_outfit))
+        .route("/outfit", post(outfit::create_outfit))
+        .merge(render::create_render_routes())
+        .with_state(pool)
 }

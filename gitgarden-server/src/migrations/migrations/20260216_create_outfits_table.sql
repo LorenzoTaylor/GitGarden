@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS outfits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    clothes JSONB NOT NULL,
+    colors JSONB NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);

@@ -107,10 +107,38 @@ const ColorSelector = ({
   </div>
 );
 
+const API_URL = "http://localhost:3000/api";
+
 const CharacterCreator = () => {
   const [selectedClothes, setSelectedClothes] = useState({ ...defaultAssets });
   const [colors, setColors] = useState<Record<ColorGroupKey, string>>({ ...defaultColors });
   const [clothingTab, setClothingTab] = useState<ColorGroupKey>('topA');
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedOutfitId, setSavedOutfitId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch(`${API_URL}/outfit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clothes: selectedClothes, colors }),
+      });
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+      const data = await res.json();
+      setSavedOutfitId(data.id);
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Save failed");
+      setTimeout(() => setSaveError(null), 3000);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const outfitLink = savedOutfitId ? `${API_URL}/outfit/${savedOutfitId}` : "";
 
   const updateColor = (group: ColorGroupKey, color: string) => {
     setColors(prev => ({ ...prev, [group]: color }));
@@ -131,16 +159,26 @@ const CharacterCreator = () => {
     <div className="dark w-full max-w-4xl mx-auto p-4 bg-neutral-900 rounded-xl">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg md:text-xl text-neutral-100">Character Creator</h1>
-        <Button
-          onClick={() => {
-            setSelectedClothes(randomizeCharacter() as typeof defaultAssets);
-            setColors(randomizeColors());
-          }}
-          className="bg-green text-white font-bold py-2 px-4 rounded flex items-center gap-2"
-        >
-          <Icon icon="pixelarticons:dice" className="w-6! h-6!" />
-          Randomize
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+          >
+            <Icon icon="pixelarticons:save" className="w-6! h-6!" />
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            onClick={() => {
+              setSelectedClothes(randomizeCharacter() as typeof defaultAssets);
+              setColors(randomizeColors());
+            }}
+            className="bg-green text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+          >
+            <Icon icon="pixelarticons:dice" className="w-6! h-6!" />
+            Randomize
+          </Button>
+        </div>
       </div>
 
       <hr className="border-neutral-800 mb-4" />
@@ -227,6 +265,47 @@ const CharacterCreator = () => {
           </div>
         </Card>
       </div>
+
+      {savedOutfitId && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setSavedOutfitId(null)}>
+          <Card className="max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <CardHeader>
+              <CardTitle>Outfit Saved!</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-neutral-400">Your outfit link:</p>
+              <div className="flex gap-2">
+                <input
+                  readOnly
+                  value={outfitLink}
+                  className="flex-1 bg-neutral-800 text-neutral-200 text-sm px-3 py-2 rounded border border-neutral-700 font-mono"
+                  onFocus={(e) => e.target.select()}
+                />
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(outfitLink);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="px-3"
+                >
+                  <Icon icon={copied ? "pixelarticons:check" : "pixelarticons:copy"} className="w-5! h-5!" />
+                </Button>
+              </div>
+              <p className="text-xs text-neutral-500">Curl this URL to get your outfit JSON.</p>
+              <Button onClick={() => setSavedOutfitId(null)} className="w-full">
+                Close
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {saveError && (
+        <div className="fixed bottom-4 right-4 bg-red-900 text-red-200 px-4 py-2 rounded-lg shadow-lg z-50 text-sm">
+          {saveError}
+        </div>
+      )}
     </div>
   );
 };
