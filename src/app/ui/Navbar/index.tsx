@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Menubar,
   MenubarMenu,
   MenubarTrigger,
   MenubarContent,
   MenubarItem,
-  MenubarSeparator,
 } from "@/components/ui/pixelact-ui/menubar";
 import { Button } from "@/components/ui/pixelact-ui/button";
 import { useAuth } from "../../context/AuthContext";
@@ -13,6 +13,7 @@ import AuthModal from "../AuthModal";
 
 export function Navbar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [authModal, setAuthModal] = useState<{ open: boolean; tab: "login" | "signup" }>({
     open: false,
     tab: "login",
@@ -35,10 +36,24 @@ export function Navbar() {
           {user ? (
             <>
               <MenubarMenu>
+                <MenubarTrigger
+                  className="cursor-pointer"
+                  onClick={() => navigate("/dashboard/create")}
+                >
+                  Create
+                </MenubarTrigger>
+              </MenubarMenu>
+              <MenubarMenu>
+                <MenubarTrigger
+                  className="cursor-pointer"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  My Outfits
+                </MenubarTrigger>
+              </MenubarMenu>
+              <MenubarMenu>
                 <MenubarTrigger className="cursor-pointer">{user.username}</MenubarTrigger>
                 <MenubarContent>
-                  <MenubarItem>My Outfits</MenubarItem>
-                  <MenubarSeparator />
                   <MenubarItem onClick={logout}>Log Out</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>

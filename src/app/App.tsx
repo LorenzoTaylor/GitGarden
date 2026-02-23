@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import CharacterCreation from "./pages/character-creator";
+import Dashboard from "./pages/dashboard";
 import Preview from "./pages/preview";
 import Home from "./pages/home";
 import SpritePage from "./pages/sprite";
@@ -13,7 +14,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<>TODO</>} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/create" element={<CharacterCreation />} />
             <Route path="/preview" element={<Preview />} />
             <Route path="/sprite/:uuid" element={<SpritePage />} />
