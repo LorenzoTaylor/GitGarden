@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { forwardRef, useEffect, useMemo } from 'react';
 import type { ColorGroupKey } from './colorConfig';
 import { getColorForLayer } from './colorConfig';
 import { useCharacterCanvas, type LayerConfig } from './useCharacterCanvas';
@@ -36,7 +36,7 @@ interface CharacterDisplayProps {
     colors: Record<ColorGroupKey, string>
 }
 
-const CharacterDisplay = (props: CharacterDisplayProps) => {
+const CharacterDisplay = forwardRef<HTMLCanvasElement, CharacterDisplayProps>((props, ref) => {
     const { colors, ...assets } = props;
 
     const layers: LayerConfig[] = useMemo(() => [
@@ -82,6 +82,16 @@ const CharacterDisplay = (props: CharacterDisplayProps) => {
         canvasHeight: 280,
     });
 
+    // Sync internal canvasRef to forwarded ref
+    useEffect(() => {
+        if (!ref) return;
+        if (typeof ref === 'function') {
+            ref(canvasRef.current);
+        } else {
+            ref.current = canvasRef.current;
+        }
+    }, [ref, canvasRef]);
+
     return (
         <div className="relative w-64 h-64 flex items-center justify-center">
             {isLoading && (
@@ -98,6 +108,8 @@ const CharacterDisplay = (props: CharacterDisplayProps) => {
             />
         </div>
     );
-};
+});
+
+CharacterDisplay.displayName = 'CharacterDisplay';
 
 export default CharacterDisplay;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { assetRegistry, defaultAssets } from "../../../../public/assets/asset-registry";
 import CharacterDisplay from "./CharacterDisplay";
 import DisplayBackgroundGif from "./DisplayBackground.gif";
@@ -15,6 +15,9 @@ import { randomizeCharacter, randomizeColors } from "./creationUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/pixelact-ui/card";
 import { Button } from "@/components/ui/pixelact-ui/button";
 import { Icon } from "@iconify/react";
+import { useAuth } from "../../context/AuthContext";
+import { API_URL } from "../../config";
+import AuthModal from "../AuthModal";
 
 const displayNames: Record<string, string> = {
   body: 'Body',
@@ -107,9 +110,8 @@ const ColorSelector = ({
   </div>
 );
 
-const API_URL = "http://localhost:3000/api";
-
 const CharacterCreator = () => {
+  const { user, token } = useAuth();
   const [selectedClothes, setSelectedClothes] = useState({ ...defaultAssets });
   const [colors, setColors] = useState<Record<ColorGroupKey, string>>({ ...defaultColors });
   const [clothingTab, setClothingTab] = useState<ColorGroupKey>('topA');
@@ -117,14 +119,21 @@ const CharacterCreator = () => {
   const [savedOutfitId, setSavedOutfitId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingSave, setPendingSave] = useState(false);
+  const [settingActive, setSettingActive] = useState(false);
 
-  const handleSave = async () => {
+  const doSave = useCallback(async (authToken: string | null) => {
     setIsSaving(true);
     setSaveError(null);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (authToken) {
+        headers["Authorization"] = `Bearer ${authToken}`;
+      }
       const res = await fetch(`${API_URL}/outfit`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ clothes: selectedClothes, colors }),
       });
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
@@ -136,9 +145,47 @@ const CharacterCreator = () => {
     } finally {
       setIsSaving(false);
     }
+  }, [selectedClothes, colors]);
+
+  const handleSave = async () => {
+    if (!user) {
+      setPendingSave(true);
+      setShowAuthModal(true);
+      return;
+    }
+    await doSave(token);
   };
 
-  const outfitLink = savedOutfitId ? `${API_URL}/outfit/${savedOutfitId}` : "";
+  const handleAuthSuccess = () => {
+    if (pendingSave) {
+      setPendingSave(false);
+      const stored = localStorage.getItem("token");
+      doSave(stored);
+    }
+  };
+
+  const handleSetActive = async () => {
+    if (!savedOutfitId || !token) return;
+    setSettingActive(true);
+    try {
+      const res = await fetch(`${API_URL}/user/current-outfit`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ outfit_id: savedOutfitId }),
+      });
+      if (!res.ok) throw new Error("Failed to set active sprite");
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Failed to set active sprite");
+      setTimeout(() => setSaveError(null), 3000);
+    } finally {
+      setSettingActive(false);
+    }
+  };
+
+  const markdownSnippet = savedOutfitId ? `![My GitGarden Sprite](${API_URL}/sprite/${savedOutfitId})` : "";
 
   const updateColor = (group: ColorGroupKey, color: string) => {
     setColors(prev => ({ ...prev, [group]: color }));
@@ -163,7 +210,7 @@ const CharacterCreator = () => {
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+            className="bg-green-800 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
           >
             <Icon icon="pixelarticons:save" className="w-6! h-6!" />
             {isSaving ? "Saving..." : "Save"}
@@ -273,17 +320,17 @@ const CharacterCreator = () => {
               <CardTitle>Outfit Saved!</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-neutral-400">Your outfit link:</p>
+              <p className="text-sm text-neutral-400">Paste into your GitHub README:</p>
               <div className="flex gap-2">
                 <input
                   readOnly
-                  value={outfitLink}
+                  value={markdownSnippet}
                   className="flex-1 bg-neutral-800 text-neutral-200 text-sm px-3 py-2 rounded border border-neutral-700 font-mono"
                   onFocus={(e) => e.target.select()}
                 />
                 <Button
                   onClick={() => {
-                    navigator.clipboard.writeText(outfitLink);
+                    navigator.clipboard.writeText(markdownSnippet);
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
@@ -292,7 +339,15 @@ const CharacterCreator = () => {
                   <Icon icon={copied ? "pixelarticons:check" : "pixelarticons:copy"} className="w-5! h-5!" />
                 </Button>
               </div>
-              <p className="text-xs text-neutral-500">Curl this URL to get your outfit JSON.</p>
+              {user && (
+                <Button
+                  onClick={handleSetActive}
+                  disabled={settingActive}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  {settingActive ? "Setting..." : "Set as active sprite"}
+                </Button>
+              )}
               <Button onClick={() => setSavedOutfitId(null)} className="w-full">
                 Close
               </Button>
@@ -306,6 +361,16 @@ const CharacterCreator = () => {
           {saveError}
         </div>
       )}
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => {
+          setShowAuthModal(false);
+          setPendingSave(false);
+        }}
+        initialTab="signup"
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };

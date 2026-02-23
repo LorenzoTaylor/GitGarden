@@ -7,6 +7,7 @@ pub struct Outfit {
     pub id: Uuid,
     pub clothes: JsonValue,
     pub colors: JsonValue,
+    pub user_id: Option<i32>,
 }
 
 #[derive(Debug, Deserialize)]

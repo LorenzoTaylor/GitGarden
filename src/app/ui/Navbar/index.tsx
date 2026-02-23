@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Menubar,
   MenubarMenu,
@@ -5,15 +6,18 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarSeparator,
-  MenubarSub,
-  MenubarSubTrigger,
-  MenubarSubContent,
-  MenubarShortcut,
-  MenubarRadioGroup,
-  MenubarRadioItem,
 } from "@/components/ui/pixelact-ui/menubar";
+import { Button } from "@/components/ui/pixelact-ui/button";
+import { useAuth } from "../../context/AuthContext";
+import AuthModal from "../AuthModal";
 
 export function Navbar() {
+  const { user, logout } = useAuth();
+  const [authModal, setAuthModal] = useState<{ open: boolean; tab: "login" | "signup" }>({
+    open: false,
+    tab: "login",
+  });
+
   return (
     <div className="w-full px-30">
       <Menubar className="flex justify-between">
@@ -27,29 +31,42 @@ export function Navbar() {
           <span className="text-xl font-bold">GitGarden</span>
         </div>
 
-        <div className="flex">
-          {/* Settings Menu */}
-          <MenubarMenu>
-            <MenubarTrigger className="cursor-pointer">Settings</MenubarTrigger>
-          </MenubarMenu>
-
-          {/* Characters Menu */}
-          <MenubarMenu>
-            <MenubarTrigger>Characters</MenubarTrigger>
-            <MenubarContent>
-              <MenubarRadioGroup value="benoit">
-                <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
-                <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>
-                <MenubarRadioItem value="Luis">Luis</MenubarRadioItem>
-              </MenubarRadioGroup>
-              <MenubarSeparator />
-              <MenubarItem inset>Edit...</MenubarItem>
-              <MenubarSeparator />
-              <MenubarItem inset>Add Profile...</MenubarItem>
-            </MenubarContent>
-          </MenubarMenu>
+        <div className="flex items-center gap-2">
+          {user ? (
+            <>
+              <MenubarMenu>
+                <MenubarTrigger className="cursor-pointer">{user.username}</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem>My Outfits</MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarItem onClick={logout}>Log Out</MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={() => setAuthModal({ open: true, tab: "login" })}
+                className="bg-black hover:bg-neutral-600 text-white"
+              >
+                Log In
+              </Button>
+              <Button
+                onClick={() => setAuthModal({ open: true, tab: "signup" })}
+                className="bg-green-800 hover:bg-green-700 text-white"
+              >
+                Sign Up
+              </Button>
+            </>
+          )}
         </div>
       </Menubar>
+
+      <AuthModal
+        isOpen={authModal.open}
+        onClose={() => setAuthModal({ ...authModal, open: false })}
+        initialTab={authModal.tab}
+      />
     </div>
   );
 }

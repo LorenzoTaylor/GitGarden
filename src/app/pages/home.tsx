@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { useRef, useState } from "react";
 import emailjs from '@emailjs/browser';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Navbar from "../ui/Navbar";
 
 const Home = () => {
   const form = useRef<HTMLFormElement>(null);
@@ -51,14 +52,7 @@ const Home = () => {
         </Alert>
       )}
 
-      <header className="w-full px-6 py-4 flex items-center gap-3">
-        <img
-          src="/assets/pixel-art-cartoon-rubber-duck-with-straw-hat-icon-png.png"
-          alt="GitGarden Logo"
-          className="w-14 h-14 [image-rendering:pixelated]"
-        />
-        <span className="text-xl font-bold">GitGarden</span>
-      </header>
+      <Navbar />
 
       <div className="flex-1 w-full flex flex-col items-center justify-start pt-10 pb-40 px-4">
         <div className="w-full max-w-3xl mx-auto p-4 flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
