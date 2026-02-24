@@ -63,7 +63,8 @@ async fn main() {
         .nest("/api", app_router(state))
         .layer(cors);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
     println!("server listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
