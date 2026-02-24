@@ -42,6 +42,11 @@ async fn main() {
         .await
         .expect("Failed to create pool");
 
+    sqlx::migrate!("src/migrations/migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to run migrations");
+
     let state = AppState {
         pool,
         assets_dir,
