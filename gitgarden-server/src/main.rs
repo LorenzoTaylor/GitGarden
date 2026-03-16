@@ -10,6 +10,7 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 use tokio::sync::RwLock;
 use tower_http::cors::CorsLayer;
+use tracing::info;
 
 mod auth;
 mod models;
@@ -28,6 +29,13 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "info".into()),
+        )
+        .init();
+
     dotenvy::dotenv().ok();
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -35,6 +43,8 @@ async fn main() {
     let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let github_client_id = std::env::var("GITHUB_CLIENT_ID").unwrap_or_default();
     let github_client_secret = std::env::var("GITHUB_CLIENT_SECRET").unwrap_or_default();
+
+    info!("Assets dir: {:?} (exists: {})", assets_dir, assets_dir.exists());
 
     let pool = PgPoolOptions::new()
         .max_connections(5)

@@ -6,6 +6,7 @@ use axum::{
     Router,
 };
 use serde::Deserialize;
+use tracing::error;
 use uuid::Uuid;
 
 use crate::models::outfit::Outfit;
@@ -25,7 +26,10 @@ async fn render_png(
         scale,
     )
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|e| {
+        error!("render_sprite failed: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", "image/png".parse().unwrap());
@@ -58,7 +62,7 @@ async fn render_sprite_handler(
     .bind(uuid)
     .fetch_optional(&state.pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    .map_err(|e| { error!("DB error in render_sprite_handler: {}", e); StatusCode::INTERNAL_SERVER_ERROR })?
     .ok_or(StatusCode::NOT_FOUND)?;
 
     render_png(&state, outfit, scale).await
@@ -78,7 +82,7 @@ async fn render_active_sprite_handler(
     .bind(&username)
     .fetch_optional(&state.pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    .map_err(|e| { error!("DB error looking up user {} sprite: {}", username, e); StatusCode::INTERNAL_SERVER_ERROR })?
     .flatten();
 
     let outfit_id = outfit_id.ok_or(StatusCode::NOT_FOUND)?;
@@ -89,7 +93,7 @@ async fn render_active_sprite_handler(
     .bind(outfit_id)
     .fetch_optional(&state.pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    .map_err(|e| { error!("DB error fetching outfit for user {} sprite: {}", username, e); StatusCode::INTERNAL_SERVER_ERROR })?
     .ok_or(StatusCode::NOT_FOUND)?;
 
     render_png(&state, outfit, scale).await
