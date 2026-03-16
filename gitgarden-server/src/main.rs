@@ -39,7 +39,7 @@ async fn main() {
     dotenvy::dotenv().ok();
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let assets_dir = PathBuf::from(std::env::var("ASSETS_DIR").unwrap_or_else(|_| "../public".to_string()));
+    let assets_dir = PathBuf::from(std::env::var("ASSETS_DIR").unwrap_or_else(|_| "/app/public".to_string()));
     let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let github_client_id = std::env::var("GITHUB_CLIENT_ID").unwrap_or_default();
     let github_client_secret = std::env::var("GITHUB_CLIENT_SECRET").unwrap_or_default();
