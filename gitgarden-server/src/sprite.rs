@@ -183,12 +183,20 @@ pub enum ColorizeMode {
     Eyes,
 }
 
-fn colorize(img: &DynamicImage, hex: &str, mode: ColorizeMode) -> RgbaImage {
+pub const FRAME_SIZE: u32 = 48;
+
+/// Number of animation frames per row in a sprite sheet.
+pub fn sheet_frame_count(img_width: u32) -> u32 {
+    (img_width / FRAME_SIZE).max(1)
+}
+
+fn colorize(img: &DynamicImage, hex: &str, mode: ColorizeMode, col: u32, row: u32) -> RgbaImage {
     let (w, h) = img.dimensions();
-    // Crop top-left 48x48 frame
-    let frame_w = w.min(48);
-    let frame_h = h.min(48);
-    let frame = img.crop_imm(0, 0, frame_w, frame_h);
+    let x_offset = (col * FRAME_SIZE).min(w.saturating_sub(FRAME_SIZE));
+    let y_offset = (row * FRAME_SIZE).min(h.saturating_sub(FRAME_SIZE));
+    let frame_w = FRAME_SIZE.min(w - x_offset);
+    let frame_h = FRAME_SIZE.min(h - y_offset);
+    let frame = img.crop_imm(x_offset, y_offset, frame_w, frame_h);
     let mut buf = frame.to_rgba8();
 
     let rgb = hex_to_rgb(hex);
@@ -213,11 +221,13 @@ fn colorize(img: &DynamicImage, hex: &str, mode: ColorizeMode) -> RgbaImage {
     buf
 }
 
-fn extract_frame(img: &DynamicImage) -> RgbaImage {
+fn extract_frame(img: &DynamicImage, col: u32, row: u32) -> RgbaImage {
     let (w, h) = img.dimensions();
-    let frame_w = w.min(48);
-    let frame_h = h.min(48);
-    img.crop_imm(0, 0, frame_w, frame_h).to_rgba8()
+    let x_offset = (col * FRAME_SIZE).min(w.saturating_sub(FRAME_SIZE));
+    let y_offset = (row * FRAME_SIZE).min(h.saturating_sub(FRAME_SIZE));
+    let frame_w = FRAME_SIZE.min(w - x_offset);
+    let frame_h = FRAME_SIZE.min(h - y_offset);
+    img.crop_imm(x_offset, y_offset, frame_w, frame_h).to_rgba8()
 }
 
 /// Sanitize a URL path from the clothes JSON to a safe filesystem path.
@@ -439,13 +449,15 @@ fn get_color_group(layer_key: &str) -> Option<&'static str> {
     }
 }
 
-pub async fn render_sprite(
+pub async fn render_sprite_raw(
     clothes: &serde_json::Value,
     colors: &serde_json::Value,
     assets_dir: &Path,
     cache: &RwLock<HashMap<String, Arc<DynamicImage>>>,
     scale: u32,
-) -> Result<Vec<u8>, String> {
+    col: u32,
+    row: u32,
+) -> Result<RgbaImage, String> {
     // Build sorted layer list
     let mut render_layers: Vec<(&LayerDef, PathBuf, Option<String>)> = Vec::new();
 
@@ -474,21 +486,21 @@ pub async fn render_sprite(
 
     render_layers.sort_by_key(|(l, _, _)| l.z);
 
-    // Create 48x48 RGBA canvas
-    let mut canvas = RgbaImage::new(48, 48);
+    // Create FRAME_SIZE x FRAME_SIZE RGBA canvas
+    let mut canvas = RgbaImage::new(FRAME_SIZE, FRAME_SIZE);
 
     for (layer, path, color) in &render_layers {
         let img = load_image_cached(path, cache).await?;
 
         let frame = if let Some(hex) = color {
-            colorize(&img, hex, layer.mode)
+            colorize(&img, hex, layer.mode, col, row)
         } else {
-            extract_frame(&img)
+            extract_frame(&img, col, row)
         };
 
         // Alpha-composite onto canvas
-        for y in 0..frame.height().min(48) {
-            for x in 0..frame.width().min(48) {
+        for y in 0..frame.height().min(FRAME_SIZE) {
+            for x in 0..frame.width().min(FRAME_SIZE) {
                 let src_pixel = frame.get_pixel(x, y);
                 let src_a = src_pixel[3] as f64 / 255.0;
                 if src_a == 0.0 {
@@ -533,9 +545,21 @@ pub async fn render_sprite(
     let dynamic = DynamicImage::ImageRgba8(canvas);
     let scaled = dynamic.resize_exact(scaled_w, scaled_h, image::imageops::FilterType::Nearest);
 
+    Ok(scaled.to_rgba8())
+}
+
+pub async fn render_sprite(
+    clothes: &serde_json::Value,
+    colors: &serde_json::Value,
+    assets_dir: &Path,
+    cache: &RwLock<HashMap<String, Arc<DynamicImage>>>,
+    scale: u32,
+) -> Result<Vec<u8>, String> {
+    let rgba = render_sprite_raw(clothes, colors, assets_dir, cache, scale, 0, 0).await?;
+
     // Encode to PNG
     let mut buf = Cursor::new(Vec::new());
-    scaled
+    DynamicImage::ImageRgba8(rgba)
         .write_to(&mut buf, ImageFormat::Png)
         .map_err(|e| format!("PNG encode failed: {e}"))?;
 

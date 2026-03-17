@@ -1,17 +1,20 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Instant;
 
 use axum::Router;
 use axum::http::{HeaderValue, Method, header};
 use github::GitHubStatsCache;
-use image::DynamicImage;
+use image::{DynamicImage, RgbaImage};
 use routes::app_router;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use tokio::sync::RwLock;
 use tower_http::cors::CorsLayer;
 use tracing::info;
+
+pub type BakedBg = (Vec<RgbaImage>, Vec<image::Delay>);
 
 mod auth;
 mod email;
@@ -32,6 +35,8 @@ pub struct AppState {
     pub github_token: String,
     pub github_stats_cache: GitHubStatsCache,
     pub email_config: Option<Arc<email::EmailConfig>>,
+    pub baked_bg: Arc<RwLock<Option<Arc<BakedBg>>>>,
+    pub gif_cache: Arc<RwLock<HashMap<String, (Vec<u8>, Instant)>>>,
 }
 
 #[tokio::main]
@@ -110,6 +115,8 @@ async fn main() {
         github_token,
         github_stats_cache: Arc::new(RwLock::new(HashMap::new())),
         email_config,
+        baked_bg: Arc::new(RwLock::new(None)),
+        gif_cache: Arc::new(RwLock::new(HashMap::new())),
     };
 
     let allowed_origins: Vec<HeaderValue> = {
