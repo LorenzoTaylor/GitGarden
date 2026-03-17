@@ -1,10 +1,15 @@
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 use serde::Deserialize;
 use uuid::Uuid;
 
+use crate::AppState;
 use crate::auth::extractor::AuthUser;
 use crate::models::outfit::Outfit;
-use crate::AppState;
+
+#[derive(Deserialize)]
+pub struct UpdateGithubUsernameRequest {
+    pub github_username: Option<String>,
+}
 
 #[derive(Deserialize)]
 pub struct SetCurrentOutfitRequest {
@@ -33,6 +38,21 @@ pub async fn set_current_outfit(
 ) -> Result<StatusCode, StatusCode> {
     sqlx::query("UPDATE users SET current_outfit_id = $1 WHERE id = $2")
         .bind(payload.outfit_id)
+        .bind(auth.user_id)
+        .execute(&state.pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(StatusCode::OK)
+}
+
+pub async fn update_github_username(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(payload): Json<UpdateGithubUsernameRequest>,
+) -> Result<StatusCode, StatusCode> {
+    sqlx::query("UPDATE users SET github_username = $1 WHERE id = $2")
+        .bind(payload.github_username.as_deref())
         .bind(auth.user_id)
         .execute(&state.pool)
         .await

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/pixela
 import { Button } from "@/components/ui/pixelact-ui/button";
 import { Input } from "@/components/ui/pixelact-ui/input";
 import { useAuth } from "../../context/AuthContext";
+import { API_URL } from "../../config";
 
 const passwordRules = [
   { label: "At least 8 characters",        check: (p: string) => p.length >= 8 },
@@ -47,16 +48,66 @@ export default function AuthModal({ isOpen, onClose, initialTab = "login", onSuc
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [githubUsername, setGithubUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+
+  const handleResend = async () => {
+    if (!verificationEmail) return;
+    setResendStatus(null);
+    try {
+      const res = await fetch(`${API_URL}/auth/resend-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: verificationEmail }),
+      });
+      const data = await res.json();
+      setResendStatus(data.message || "Sent!");
+    } catch {
+      setResendStatus("Failed to resend. Please try again.");
+    }
+  };
 
   if (!isOpen) return null;
+
+  if (verificationEmail) {
+    return (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+        <Card className="max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+          <CardHeader>
+            <CardTitle>Check your email</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-neutral-300">
+              We sent a verification link to <span className="text-white font-medium">{verificationEmail}</span>.
+              Click the link to activate your account.
+            </p>
+            <p className="text-xs text-neutral-500">The link expires in 24 hours.</p>
+            {resendStatus && (
+              <p className="text-xs text-green-400">{resendStatus}</p>
+            )}
+            <div className="flex gap-2">
+              <Button onClick={handleResend} className="flex-1 bg-neutral-700 hover:bg-neutral-600 text-white text-sm">
+                Resend email
+              </Button>
+              <Button onClick={onClose} className="flex-1 bg-green-800 hover:bg-green-700 text-white text-sm">
+                Done
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const resetForm = () => {
     setEmail("");
     setPassword("");
     setUsername("");
     setConfirmPassword("");
+    setGithubUsername("");
     setError(null);
   };
 
@@ -89,9 +140,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = "login", onSuc
     }
     setSubmitting(true);
     try {
-      await signup(username, email, password);
-      onSuccess?.();
-      onClose();
+      await signup(username, email, password, githubUsername || undefined);
+      setVerificationEmail(email);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed");
     } finally {
@@ -191,6 +241,13 @@ export default function AuthModal({ isOpen, onClose, initialTab = "login", onSuc
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+              />
+              <Input
+                type="text"
+                placeholder="GitHub Username (optional)"
+                className="w-full"
+                value={githubUsername}
+                onChange={(e) => setGithubUsername(e.target.value)}
               />
               <PasswordChecklist password={password} />
               <Button type="submit" disabled={submitting || !passwordValid(password)} className="w-full mt-2 bg-green-800 hover:bg-green-700 text-white">

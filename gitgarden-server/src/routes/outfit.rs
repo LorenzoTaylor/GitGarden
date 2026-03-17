@@ -1,15 +1,15 @@
 use axum::{
+    Json,
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use tracing::error;
 use uuid::Uuid;
 
+use crate::AppState;
 use crate::auth::extractor::OptionalAuthUser;
 use crate::models::outfit::{CreateOutfitRequest, CreateOutfitResponse, Outfit};
-use crate::AppState;
 
 pub async fn get_outfit(
     State(state): State<AppState>,
@@ -21,7 +21,10 @@ pub async fn get_outfit(
     .bind(uuid)
     .fetch_optional(&state.pool)
     .await
-    .map_err(|e| { error!("DB error in get_outfit {}: {}", uuid, e); StatusCode::INTERNAL_SERVER_ERROR })?
+    .map_err(|e| {
+        error!("DB error in get_outfit {}: {}", uuid, e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?
     .ok_or(StatusCode::NOT_FOUND)?;
 
     Ok(Json(outfit))
@@ -40,7 +43,10 @@ pub async fn create_outfit(
     .bind(auth.user_id)
     .fetch_one(&state.pool)
     .await
-    .map_err(|e| { error!("DB error in create_outfit: {}", e); StatusCode::INTERNAL_SERVER_ERROR })?;
+    .map_err(|e| {
+        error!("DB error in create_outfit: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     Ok((StatusCode::CREATED, Json(CreateOutfitResponse { id })))
 }

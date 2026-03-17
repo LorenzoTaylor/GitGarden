@@ -72,11 +72,7 @@ fn rgb_to_hsl(rgb: Rgb) -> Hsl {
         ((r - g) / d + 4.0) / 6.0
     };
 
-    Hsl {
-        h: h * 360.0,
-        s,
-        l,
-    }
+    Hsl { h: h * 360.0, s, l }
 }
 
 fn hue2rgb(p: f64, q: f64, mut t: f64) -> f64 {
@@ -248,7 +244,7 @@ async fn load_image_cached(
     }
 
     // Load from disk
-    let img = image::open(path).map_err(|e| format!("Failed to load {}: {}", key, e))?;
+    let img = image::open(path).map_err(|e| format!("Failed to load {key}: {e}"))?;
     let img = Arc::new(img);
 
     {
@@ -267,35 +263,151 @@ struct LayerDef {
 }
 
 const LAYERS: &[LayerDef] = &[
-    LayerDef { key: "backA", z: 1, mode: ColorizeMode::Normal },
-    LayerDef { key: "shoulderA", z: 2, mode: ColorizeMode::Normal },
-    LayerDef { key: "shoulderB", z: 3, mode: ColorizeMode::Normal },
-    LayerDef { key: "body", z: 10, mode: ColorizeMode::Normal },
-    LayerDef { key: "head", z: 11, mode: ColorizeMode::Normal },
-    LayerDef { key: "face", z: 12, mode: ColorizeMode::Normal },
-    LayerDef { key: "ears", z: 13, mode: ColorizeMode::Normal },
-    LayerDef { key: "horns", z: 14, mode: ColorizeMode::Normal },
-    LayerDef { key: "eyes", z: 15, mode: ColorizeMode::Eyes },
-    LayerDef { key: "eyebrows", z: 16, mode: ColorizeMode::Normal },
-    LayerDef { key: "hairA", z: 20, mode: ColorizeMode::Normal },
-    LayerDef { key: "hairB", z: 21, mode: ColorizeMode::Normal },
-    LayerDef { key: "hairC", z: 22, mode: ColorizeMode::Normal },
-    LayerDef { key: "hairD", z: 23, mode: ColorizeMode::Normal },
-    LayerDef { key: "arms", z: 30, mode: ColorizeMode::Normal },
-    LayerDef { key: "gloves", z: 31, mode: ColorizeMode::Normal },
-    LayerDef { key: "socks", z: 40, mode: ColorizeMode::Normal },
-    LayerDef { key: "shoes", z: 41, mode: ColorizeMode::Normal },
-    LayerDef { key: "bottomA", z: 50, mode: ColorizeMode::Normal },
-    LayerDef { key: "bottomB", z: 51, mode: ColorizeMode::Normal },
-    LayerDef { key: "mid", z: 55, mode: ColorizeMode::Normal },
-    LayerDef { key: "topA", z: 60, mode: ColorizeMode::Normal },
-    LayerDef { key: "topB", z: 61, mode: ColorizeMode::Normal },
-    LayerDef { key: "jacketA", z: 65, mode: ColorizeMode::Normal },
-    LayerDef { key: "jacketB", z: 66, mode: ColorizeMode::Normal },
-    LayerDef { key: "accessoryA", z: 70, mode: ColorizeMode::Normal },
-    LayerDef { key: "accessoryB", z: 71, mode: ColorizeMode::Normal },
-    LayerDef { key: "accessoryC", z: 72, mode: ColorizeMode::Normal },
-    LayerDef { key: "accessoryD", z: 73, mode: ColorizeMode::Normal },
+    LayerDef {
+        key: "backA",
+        z: 1,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "shoulderA",
+        z: 2,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "shoulderB",
+        z: 3,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "body",
+        z: 10,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "head",
+        z: 11,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "face",
+        z: 12,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "ears",
+        z: 13,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "horns",
+        z: 14,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "eyes",
+        z: 15,
+        mode: ColorizeMode::Eyes,
+    },
+    LayerDef {
+        key: "eyebrows",
+        z: 16,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "hairA",
+        z: 20,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "hairB",
+        z: 21,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "hairC",
+        z: 22,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "hairD",
+        z: 23,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "arms",
+        z: 30,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "gloves",
+        z: 31,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "socks",
+        z: 40,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "shoes",
+        z: 41,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "bottomA",
+        z: 50,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "bottomB",
+        z: 51,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "mid",
+        z: 55,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "topA",
+        z: 60,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "topB",
+        z: 61,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "jacketA",
+        z: 65,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "jacketB",
+        z: 66,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "accessoryA",
+        z: 70,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "accessoryB",
+        z: 71,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "accessoryC",
+        z: 72,
+        mode: ColorizeMode::Normal,
+    },
+    LayerDef {
+        key: "accessoryD",
+        z: 73,
+        mode: ColorizeMode::Normal,
+    },
 ];
 
 /// Color group mapping (mirrors colorConfig.ts)
@@ -347,13 +459,15 @@ pub async fn render_sprite(
             continue;
         }
 
-        let relative = sanitize_asset_path(src).ok_or_else(|| {
-            format!("Invalid asset path for layer {}: {}", layer.key, src)
-        })?;
+        let relative = sanitize_asset_path(src)
+            .ok_or_else(|| format!("Invalid asset path for layer {}: {}", layer.key, src))?;
         let full_path = assets_dir.join(&relative);
 
         let color_group = get_color_group(layer.key);
-        let color = color_group.and_then(|g| colors.get(g)).and_then(|v| v.as_str()).map(|s| s.to_string());
+        let color = color_group
+            .and_then(|g| colors.get(g))
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
 
         render_layers.push((layer, full_path, color));
     }
@@ -389,9 +503,15 @@ pub async fn render_sprite(
                     continue;
                 }
 
-                let out_r = (src_pixel[0] as f64 * src_a + dst_pixel[0] as f64 * dst_a * (1.0 - src_a)) / out_a;
-                let out_g = (src_pixel[1] as f64 * src_a + dst_pixel[1] as f64 * dst_a * (1.0 - src_a)) / out_a;
-                let out_b = (src_pixel[2] as f64 * src_a + dst_pixel[2] as f64 * dst_a * (1.0 - src_a)) / out_a;
+                let out_r = (src_pixel[0] as f64 * src_a
+                    + dst_pixel[0] as f64 * dst_a * (1.0 - src_a))
+                    / out_a;
+                let out_g = (src_pixel[1] as f64 * src_a
+                    + dst_pixel[1] as f64 * dst_a * (1.0 - src_a))
+                    / out_a;
+                let out_b = (src_pixel[2] as f64 * src_a
+                    + dst_pixel[2] as f64 * dst_a * (1.0 - src_a))
+                    / out_a;
 
                 canvas.put_pixel(
                     x,
@@ -417,7 +537,7 @@ pub async fn render_sprite(
     let mut buf = Cursor::new(Vec::new());
     scaled
         .write_to(&mut buf, ImageFormat::Png)
-        .map_err(|e| format!("PNG encode failed: {}", e))?;
+        .map_err(|e| format!("PNG encode failed: {e}"))?;
 
     Ok(buf.into_inner())
 }
@@ -485,8 +605,14 @@ mod tests {
 
     #[test]
     fn test_sanitize_asset_path() {
-        assert_eq!(sanitize_asset_path("/sprites/body.png"), Some("sprites/body.png".to_string()));
-        assert_eq!(sanitize_asset_path("sprites/body.png"), Some("sprites/body.png".to_string()));
+        assert_eq!(
+            sanitize_asset_path("/sprites/body.png"),
+            Some("sprites/body.png".to_string())
+        );
+        assert_eq!(
+            sanitize_asset_path("sprites/body.png"),
+            Some("sprites/body.png".to_string())
+        );
         assert_eq!(sanitize_asset_path("../etc/passwd"), None);
         assert_eq!(sanitize_asset_path("/sprites/../secret"), None);
     }

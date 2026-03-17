@@ -17,7 +17,9 @@ impl ValidationError {
         match self {
             Self::UsernameTooShort => "Username must be at least 3 characters",
             Self::UsernameTooLong => "Username must be at most 30 characters",
-            Self::UsernameInvalidChars => "Username can only contain letters, numbers, underscores, and hyphens",
+            Self::UsernameInvalidChars => {
+                "Username can only contain letters, numbers, underscores, and hyphens"
+            }
             Self::UsernameInappropriate => "Username contains inappropriate content",
             Self::PasswordTooShort => "Password must be at least 8 characters",
             Self::PasswordNoUppercase => "Password must contain at least one uppercase letter",
@@ -35,7 +37,10 @@ pub fn validate_username(username: &str) -> Result<(), ValidationError> {
     if username.len() > 30 {
         return Err(ValidationError::UsernameTooLong);
     }
-    if !username.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+    if !username
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+    {
         return Err(ValidationError::UsernameInvalidChars);
     }
     if username.is_inappropriate() {

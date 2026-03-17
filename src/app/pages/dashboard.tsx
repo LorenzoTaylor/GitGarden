@@ -79,7 +79,7 @@ const Dashboard = () => {
             <CardContent className="p-6 flex flex-col md:flex-row items-center gap-8 mb-20">
               {activeOutfitId ? (
                 <img
-                  src={`${API_URL}/sprite/${activeOutfitId}?scale=6`}
+                  src={`${API_URL}/sprite/${activeOutfitId}/preview?scale=6`}
                   alt="Active sprite"
                   className="w-56 h-56 [image-rendering:pixelated] shrink-0"
                 />
@@ -160,7 +160,7 @@ const Dashboard = () => {
                 >
                   <CardContent className="p-4 flex items-center gap-6">
                     <img
-                      src={`${API_URL}/sprite/${outfit.id}?scale=6`}
+                      src={`${API_URL}/sprite/${outfit.id}/preview?scale=6`}
                       alt="Sprite"
                       className="w-56 h-56 [image-rendering:pixelated] shrink-0"
                     />

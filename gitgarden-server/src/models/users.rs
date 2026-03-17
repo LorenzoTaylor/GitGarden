@@ -6,9 +6,11 @@ use uuid::Uuid;
 pub struct User {
     pub id: i32,
     pub github_username: Option<String>,
+    #[allow(dead_code)]
     pub github_id: Option<i64>,
     pub username: String,
     pub email: String,
+    pub email_verified: bool,
     pub password_hash: Option<String>,
     pub current_outfit_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,

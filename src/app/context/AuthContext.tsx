@@ -15,7 +15,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (username: string, email: string, password: string) => Promise<void>;
+  signup: (username: string, email: string, password: string, githubUsername?: string) => Promise<{ needsVerification: boolean }>;
   loginWithGithub: (code: string) => Promise<void>;
   logout: () => void;
 }
@@ -70,25 +70,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: "Login failed" }));
-      throw new Error(err.message || "Login failed");
+      const err = await res.json().catch(() => ({ error: "Login failed" }));
+      throw new Error(err.error || "Login failed");
     }
     const data = await res.json();
     saveAuth(data.token, data.user);
   };
 
-  const signup = async (username: string, email: string, password: string) => {
+  const signup = async (username: string, email: string, password: string, githubUsername?: string) => {
     const res = await fetch(`${API_URL}/auth/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ username, email, password, github_username: githubUsername || undefined }),
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: "Signup failed" }));
-      throw new Error(err.message || "Signup failed");
+      const err = await res.json().catch(() => ({ error: "Signup failed" }));
+      throw new Error(err.error || "Signup failed");
     }
-    const data = await res.json();
-    saveAuth(data.token, data.user);
+    // Server returns a message (not a token) — user must verify email first
+    return { needsVerification: true };
   };
 
   const loginWithGithub = async (code: string) => {

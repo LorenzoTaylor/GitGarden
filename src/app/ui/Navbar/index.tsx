@@ -52,6 +52,14 @@ export function Navbar() {
                 </MenubarTrigger>
               </MenubarMenu>
               <MenubarMenu>
+                <MenubarTrigger
+                  className="cursor-pointer"
+                  onClick={() => navigate("/account")}
+                >
+                  Account
+                </MenubarTrigger>
+              </MenubarMenu>
+              <MenubarMenu>
                 <MenubarTrigger className="cursor-pointer">{user.username}</MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem onClick={logout}>Log Out</MenubarItem>

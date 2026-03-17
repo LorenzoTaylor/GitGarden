@@ -1,0 +1,13 @@
+echo "Running pre-push checks..."
+
+# TypeScript check
+npx tsc -b --noEmit || { echo "TypeScript errors found"; exit 1; }
+
+# Rust checks (only if in gitgarden-server or changes exist there)
+if git diff --name-only HEAD@{push} HEAD 2>/dev/null | grep -q "^gitgarden-server/"; then
+  echo "Rust changes detected, running cargo checks..."
+  (cd gitgarden-server && cargo fmt --check) || { echo "Run 'cargo fmt' in gitgarden-server to fix formatting"; exit 1; }
+  (cd gitgarden-server && cargo clippy -- -D warnings) || { echo "Fix clippy warnings before pushing"; exit 1; }
+fi
+
+echo "Pre-push checks passed."

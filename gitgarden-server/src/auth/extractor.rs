@@ -1,10 +1,10 @@
 use axum::{
     extract::FromRequestParts,
-    http::{header, request::Parts, StatusCode},
+    http::{StatusCode, header, request::Parts},
 };
 
-use crate::AppState;
 use super::jwt::validate_token;
+use crate::AppState;
 
 /// Required auth extractor - returns 401 if no valid token
 pub struct AuthUser {
