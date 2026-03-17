@@ -40,9 +40,9 @@ async fn main() {
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let assets_dir = if cfg!(debug_assertions) {
-        PathBuf::from("public")
+        PathBuf::from("sprite_assets")
     } else {
-        PathBuf::from("/app/public")
+        PathBuf::from("/app/sprite_assets")
     };
     let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let github_client_id = std::env::var("GITHUB_CLIENT_ID").unwrap_or_default();
@@ -75,7 +75,7 @@ async fn main() {
             "http://localhost:5173".parse::<HeaderValue>().unwrap(),
             "https://git-garden.vercel.app".parse::<HeaderValue>().unwrap(),
         ])
-        .allow_methods([Method::GET, Method::POST, Method::PUT])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::OPTIONS])
         .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION]);
 
     let app = Router::new()
