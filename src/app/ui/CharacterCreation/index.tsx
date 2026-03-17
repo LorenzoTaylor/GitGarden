@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { assetRegistry, defaultAssets } from "../../../../public/assets/asset-registry";
+import { assetRegistry, defaultAssets } from "@/assets/asset-registry";
 import CharacterDisplay from "./CharacterDisplay";
 import DisplayBackgroundGif from "./DisplayBackground.gif";
 import type { ColorGroupKey } from "./colorConfig";

@@ -40,7 +40,7 @@ async fn main() {
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let assets_dir = if cfg!(debug_assertions) {
-        PathBuf::from("../public")
+        PathBuf::from("public")
     } else {
         PathBuf::from("/app/public")
     };
