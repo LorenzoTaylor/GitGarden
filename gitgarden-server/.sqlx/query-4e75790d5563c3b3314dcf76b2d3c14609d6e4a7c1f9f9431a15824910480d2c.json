@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT current_outfit_id, github_username FROM users WHERE username = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "current_outfit_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "github_username",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Text"]
+    },
+    "nullable": [true, true]
+  },
+  "hash": "4e75790d5563c3b3314dcf76b2d3c14609d6e4a7c1f9f9431a15824910480d2c"
+}
