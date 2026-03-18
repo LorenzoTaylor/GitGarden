@@ -61,29 +61,16 @@ async fn main() {
     let github_token = std::env::var("GITHUB_TOKEN").unwrap_or_default();
 
     let email_config = match (
-        std::env::var("SMTP_HOST"),
-        std::env::var("SMTP_USERNAME"),
-        std::env::var("SMTP_PASSWORD"),
-        std::env::var("SMTP_FROM"),
+        std::env::var("RESEND_API_KEY"),
+        std::env::var("EMAIL_FROM"),
         std::env::var("APP_URL"),
     ) {
-        (Ok(host), Ok(username), Ok(password), Ok(from), Ok(app_url)) => {
-            let port = std::env::var("SMTP_PORT")
-                .ok()
-                .and_then(|p| p.parse().ok())
-                .unwrap_or(587u16);
-            info!("Email configured via SMTP host: {}", host);
-            Some(Arc::new(email::EmailConfig {
-                smtp_host: host,
-                smtp_port: port,
-                smtp_username: username,
-                smtp_password: password,
-                smtp_from: from,
-                app_url,
-            }))
+        (Ok(api_key), Ok(from), Ok(app_url)) => {
+            info!("Email configured via Resend API");
+            Some(Arc::new(email::EmailConfig { resend_api_key: api_key, from, app_url }))
         }
         _ => {
-            info!("SMTP not configured — email verification will be skipped");
+            info!("Resend not configured — email verification will be skipped");
             None
         }
     };
