@@ -132,9 +132,12 @@ pub async fn signup(
     .await
     .map_err(|_| internal())?;
 
-    // Send verification email (non-fatal: log but don't fail signup)
-    if let Some(email_config) = &state.email_config {
-        send_verification_email(email_config, &payload.email, &token).await;
+    // Send verification email in background — don't block the response
+    if let Some(email_config) = state.email_config.clone() {
+        let email = payload.email.clone();
+        tokio::spawn(async move {
+            send_verification_email(&email_config, &email, &token).await;
+        });
     }
 
     Ok((
@@ -226,8 +229,11 @@ pub async fn resend_verification(
     .await
     .map_err(|_| internal())?;
 
-    if let Some(email_config) = &state.email_config {
-        send_verification_email(email_config, &payload.email, &token).await;
+    if let Some(email_config) = state.email_config.clone() {
+        let email = payload.email.clone();
+        tokio::spawn(async move {
+            send_verification_email(&email_config, &email, &token).await;
+        });
     }
 
     Ok((
