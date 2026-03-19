@@ -14,8 +14,7 @@ const features = [
   {
     icon: "pixelarticons:code",
     title: "Tied to Your Code",
-    description:
-      "Your sprite evolves with your GitHub activity. The more you commit, the more you unlock.",
+    description: "Your sprite stats evolve based on your GitHub activity.",
   },
   {
     icon: "pixelarticons:image",
@@ -49,10 +48,7 @@ const Home = () => {
           <span className="text-green-500">as a pixel art character.</span>
         </h1>
 
-        <p className="text-neutral-400 text-lg max-w-xl">
-          GitGarden turns your coding life into a living sprite. Build your character, embed it in
-          your README, and watch it grow as you ship.
-        </p>
+        <p className="text-neutral-400 text-lg max-w-xl">Add some spice to your GitHub profile.</p>
 
         <Button
           onClick={() => navigate(user ? "/dashboard" : "/dashboard/create")}
@@ -64,7 +60,7 @@ const Home = () => {
 
         {!user && (
           <p className="text-xs text-neutral-600">
-            No account needed to start — save your sprite when you're ready.
+            No account needed to start save your sprite when you're ready.
           </p>
         )}
       </div>
