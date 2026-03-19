@@ -110,16 +110,26 @@ pub async fn signup(
 
     let password_hash = hash_password(&payload.password).map_err(|_| internal())?;
 
+    // When email is not configured (local dev), auto-verify the user
+    let auto_verify = state.email_config.is_none();
+
     let user = sqlx::query_as::<_, User>(
-        &format!("INSERT INTO users (username, email, password_hash, github_username, email_verified) VALUES ($1, $2, $3, $4, FALSE) RETURNING {USER_SELECT}"),
+        &format!("INSERT INTO users (username, email, password_hash, github_username, email_verified) VALUES ($1, $2, $3, $4, $5) RETURNING {USER_SELECT}"),
     )
     .bind(&payload.username)
     .bind(&payload.email)
     .bind(&password_hash)
     .bind(payload.github_username.as_deref())
+    .bind(auto_verify)
     .fetch_one(&state.pool)
     .await
     .map_err(|_| conflict("Email or username already taken"))?;
+
+    if auto_verify {
+        let token = create_token(user.id, &state.jwt_secret).map_err(|_| internal())?;
+        let user_response: UserResponse = user.into();
+        return Ok((StatusCode::CREATED, Json(json!({ "token": token, "user": user_response }))));
+    }
 
     // Generate and store verification token (expires in 24h)
     let token = generate_token();
@@ -142,9 +152,7 @@ pub async fn signup(
 
     Ok((
         StatusCode::CREATED,
-        Json(
-            json!({ "message": "Account created. Please check your email to verify your account." }),
-        ),
+        Json(json!({ "message": "Account created. Please check your email to verify your account." })),
     ))
 }
 

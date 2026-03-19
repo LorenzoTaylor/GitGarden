@@ -15,9 +15,15 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (username: string, email: string, password: string, githubUsername?: string) => Promise<{ needsVerification: boolean }>;
+  signup: (
+    username: string,
+    email: string,
+    password: string,
+    githubUsername?: string
+  ) => Promise<{ needsVerification: boolean }>;
   loginWithGithub: (code: string) => Promise<void>;
   logout: () => void;
+  setCurrentOutfitId: (outfitId: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -37,6 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
+  }, []);
+
+  const setCurrentOutfitId = useCallback((outfitId: string) => {
+    setUser((prev) => (prev ? { ...prev, current_outfit_id: outfitId } : prev));
   }, []);
 
   useEffect(() => {
@@ -77,17 +87,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveAuth(data.token, data.user);
   };
 
-  const signup = async (username: string, email: string, password: string, githubUsername?: string) => {
+  const signup = async (
+    username: string,
+    email: string,
+    password: string,
+    githubUsername?: string
+  ) => {
     const res = await fetch(`${API_URL}/auth/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password, github_username: githubUsername || undefined }),
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+        github_username: githubUsername || undefined,
+      }),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: "Signup failed" }));
       throw new Error(err.error || "Signup failed");
     }
-    // Server returns a message (not a token) — user must verify email first
+    const data = await res.json();
+    // When email verification is skipped (local dev), server returns a JWT directly
+    if (data.token) {
+      saveAuth(data.token, data.user);
+      return { needsVerification: false };
+    }
     return { needsVerification: true };
   };
 
@@ -106,7 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, signup, loginWithGithub, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, loading, login, signup, loginWithGithub, logout, setCurrentOutfitId }}
+    >
       {children}
     </AuthContext.Provider>
   );

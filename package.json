@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"cd gitgarden-server && cargo run\"",
+    "dev": "concurrently \"vite\" \"cd gitgarden-server && cargo run --bin gitgarden-server\"",
+    "seed": "bash scripts/seed.sh",
+    "reset-db": "bash scripts/seed.sh --reset",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

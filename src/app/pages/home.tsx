@@ -8,17 +8,20 @@ const features = [
   {
     icon: "pixelarticons:user",
     title: "Build Your Character",
-    description: "Customize every detail — hair, outfit, accessories, colors. Hundreds of combinations.",
+    description:
+      "Customize every detail — hair, outfit, accessories, colors. Hundreds of combinations.",
   },
   {
     icon: "pixelarticons:code",
     title: "Tied to Your Code",
-    description: "Your sprite evolves with your GitHub activity. The more you commit, the more you unlock.",
+    description:
+      "Your sprite evolves with your GitHub activity. The more you commit, the more you unlock.",
   },
   {
     icon: "pixelarticons:image",
     title: "Embed Anywhere",
-    description: "Drop a single line into your GitHub README and your sprite lives there, always up to date.",
+    description:
+      "Drop a single line into your GitHub README and your sprite lives there, always up to date.",
   },
 ];
 
@@ -40,13 +43,15 @@ const Home = () => {
           />
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-2xl leading-tight">
-          Your GitHub activity,<br />
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight max-w-8xl leading-tight">
+          Your GitHub activity,
+          <br />
           <span className="text-green-500">as a pixel art character.</span>
         </h1>
 
         <p className="text-neutral-400 text-lg max-w-xl">
-          GitGarden turns your coding life into a living sprite. Build your character, embed it in your README, and watch it grow as you ship.
+          GitGarden turns your coding life into a living sprite. Build your character, embed it in
+          your README, and watch it grow as you ship.
         </p>
 
         <Button
@@ -64,10 +69,39 @@ const Home = () => {
         )}
       </div>
 
+      {/* Preview */}
+      <div className="w-full px-4 pb-16">
+        <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+          <figure>
+            <img
+              src="/assets/sprite-card-preview.gif"
+              alt="Sprite Card"
+              className="rounded-xl border border-neutral-800 w-full h-auto"
+            />
+            <figcaption className="text-xs text-neutral-500 text-center mt-2">
+              Your GitHub Card
+            </figcaption>
+          </figure>
+          <figure>
+            <img
+              src="/assets/character-creator-preview.png"
+              alt="Character Creator"
+              className="rounded-xl border border-neutral-800 w-full h-auto"
+            />
+            <figcaption className="text-xs text-neutral-500 text-center mt-2">
+              Character Creator
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
       {/* Features */}
       <div className="w-full max-w-4xl mx-auto px-4 pb-24 grid grid-cols-1 md:grid-cols-3 gap-6">
         {features.map(({ icon, title, description }) => (
-          <div key={title} className="flex flex-col gap-3 p-6 rounded-xl border border-neutral-800 bg-neutral-900">
+          <div
+            key={title}
+            className="flex flex-col gap-3 p-6 rounded-xl border border-neutral-800 bg-neutral-900"
+          >
             <Icon icon={icon} className="w-8 h-8 text-green-500" />
             <h3 className="font-semibold text-neutral-100">{title}</h3>
             <p className="text-sm text-neutral-400">{description}</p>

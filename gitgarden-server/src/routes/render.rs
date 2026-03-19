@@ -85,7 +85,7 @@ fn composite(dst: &mut RgbaImage, src: &RgbaImage, x: i64, y: i64) {
 }
 
 /// How many pixels to shift the background crop downward into the source image.
-const BG_Y_SHIFT: u32 = 30;
+const BG_Y_SHIFT: u32 = 225;
 
 /// Scale, crop (shifted down), and apply dark overlay to one background GIF frame.
 fn bake_bg_frame(raw: &RgbaImage) -> RgbaImage {
@@ -192,33 +192,29 @@ fn bake_stats_overlay(
     let mut overlay = RgbaImage::new(CARD_W, CARD_H);
     let white = Rgba([255u8, 255, 255, 255]);
     let green = Rgba([80u8, 200, 100, 255]);
-    let grey = Rgba([180u8, 180, 180, 255]);
     let rank = compute_rank(stats);
 
     // Username
-    draw_text_mut(&mut overlay, white, 30, 30, PxScale::from(14.0), font, &format!("@{gh_user}"));
+    draw_text_mut(&mut overlay, white, 30, 25, PxScale::from(20.0), font, &format!("@{gh_user}"));
 
     // Column 1 — COMMITS, STREAK, RANK
-    draw_text_mut(&mut overlay, green, 30, 82, PxScale::from(8.0), font, "COMMITS");
-    draw_text_mut(&mut overlay, grey,  30, 94, PxScale::from(6.0), font, "(LAST YEAR)");
-    draw_text_mut(&mut overlay, white, 30, 108, PxScale::from(12.0), font, &stats.commits_last_year.to_string());
+    draw_text_mut(&mut overlay, green, 30, 76, PxScale::from(14.0), font, "COMMITS");
+    draw_text_mut(&mut overlay, white, 30, 94, PxScale::from(12.0), font, "(LAST YEAR)");
+    draw_text_mut(&mut overlay, white, 30, 112, PxScale::from(16.0), font, &stats.commits_last_year.to_string());
 
-    draw_text_mut(&mut overlay, green, 30, 148, PxScale::from(8.0), font, "STREAK");
-    draw_text_mut(&mut overlay, white, 30, 162, PxScale::from(12.0), font, &format!("{} DAYS", stats.current_streak));
-
-    // Divider before rank
-    draw_line_segment_mut(&mut overlay, (30.0, 194.0), (560.0, 194.0), Rgba([255u8, 255, 255, 180]));
+    draw_text_mut(&mut overlay, green, 30, 148, PxScale::from(14.0), font, "STREAK");
+    draw_text_mut(&mut overlay, white, 30, 166, PxScale::from(16.0), font, &format!("{} DAYS", stats.current_streak));
 
     // Inline RANK: A
-    draw_text_mut(&mut overlay, green, 30, 206, PxScale::from(8.0), font, "RANK:");
-    draw_text_mut(&mut overlay, white, 88, 206, PxScale::from(8.0), font, rank);
+    draw_text_mut(&mut overlay, green, 30, 210, PxScale::from(16.0), font, "RANK:");
+    draw_text_mut(&mut overlay, white, 120, 210, PxScale::from(18.0), font, rank);
 
     // Column 2 — PULL REQUESTS, STARS
-    draw_text_mut(&mut overlay, green, 280, 82, PxScale::from(8.0), font, "PULL REQUESTS");
-    draw_text_mut(&mut overlay, white, 280, 96, PxScale::from(12.0), font, &stats.merged_prs.to_string());
+    draw_text_mut(&mut overlay, green, 280, 76, PxScale::from(14.0), font, "PULL REQUESTS");
+    draw_text_mut(&mut overlay, white, 280, 94, PxScale::from(16.0), font, &stats.merged_prs.to_string());
 
-    draw_text_mut(&mut overlay, green, 280, 136, PxScale::from(8.0), font, "STARS");
-    draw_text_mut(&mut overlay, white, 280, 150, PxScale::from(12.0), font, &stats.total_stars.to_string());
+    draw_text_mut(&mut overlay, green, 280, 136, PxScale::from(14.0), font, "STARS");
+    draw_text_mut(&mut overlay, white, 280, 154, PxScale::from(16.0), font, &stats.total_stars.to_string());
 
     overlay
 }

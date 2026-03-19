@@ -15,7 +15,7 @@ interface Outfit {
 const GREEN_SHADOW = "-4px 0 0 0 #166534, 4px 0 0 0 #166534, 0 4px 0 0 #166534, 0 -4px 0 0 #166534";
 
 const Dashboard = () => {
-  const { user, token, loading } = useAuth();
+  const { user, token, loading, setCurrentOutfitId } = useAuth();
   const navigate = useNavigate();
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [fetching, setFetching] = useState(true);
@@ -23,6 +23,10 @@ const Dashboard = () => {
   const [activeOutfitId, setActiveOutfitId] = useState<string | null>(
     user?.current_outfit_id ?? null
   );
+
+  useEffect(() => {
+    setActiveOutfitId(user?.current_outfit_id ?? null);
+  }, [user?.current_outfit_id]);
   const [settingActive, setSettingActive] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,6 +60,7 @@ const Dashboard = () => {
         body: JSON.stringify({ outfit_id: id }),
       });
       setActiveOutfitId(id);
+      setCurrentOutfitId(id);
     } finally {
       setSettingActive(null);
     }
@@ -69,7 +74,6 @@ const Dashboard = () => {
       <Navbar />
 
       <div className="flex-1 w-full max-w-5xl mx-auto px-4 pt-10 pb-20 space-y-10">
-
         {/* Active Sprite */}
         {activeUrl && (
           <Card
@@ -92,7 +96,8 @@ const Dashboard = () => {
                 <div>
                   <h2 className="text-lg font-semibold text-green-400">Active Sprite</h2>
                   <p className="text-sm text-neutral-400 mt-1">
-                    This URL always points to your active outfit. Embed it in your README, it updates automatically when you change your active outfit.
+                    This URL always points to your active outfit. Embed it in your README, it
+                    updates automatically when you change your active outfit.
                   </p>
                 </div>
                 <div className="flex gap-2 items-center">
@@ -152,9 +157,10 @@ const Dashboard = () => {
               {outfits.map((outfit) => (
                 <Card
                   key={outfit.id}
-                  style={activeOutfitId === outfit.id
-                    ? { "--pixel-box-shadow": GREEN_SHADOW } as React.CSSProperties
-                    : undefined
+                  style={
+                    activeOutfitId === outfit.id
+                      ? ({ "--pixel-box-shadow": GREEN_SHADOW } as React.CSSProperties)
+                      : undefined
                   }
                   className="bg-neutral-900"
                 >
@@ -197,8 +203,8 @@ const Dashboard = () => {
                         {settingActive === outfit.id
                           ? "Setting..."
                           : activeOutfitId === outfit.id
-                          ? "Active"
-                          : "Set Active"}
+                            ? "Active"
+                            : "Set Active"}
                       </Button>
                     </div>
                   </CardContent>

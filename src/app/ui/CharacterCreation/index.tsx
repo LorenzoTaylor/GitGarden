@@ -9,7 +9,7 @@ import {
   hairColors,
   eyeColors,
   clothingColors,
-  getColorGroupForLayer
+  getColorGroupForLayer,
 } from "./colorConfig";
 import { randomizeCharacter, randomizeColors } from "./creationUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/pixelact-ui/card";
@@ -20,36 +20,36 @@ import { API_URL } from "../../config";
 import AuthModal from "../AuthModal";
 
 const displayNames: Record<string, string> = {
-  body: 'Body',
-  head: 'Head',
-  face: 'Face',
-  ears: 'Ears',
-  horns: 'Horns',
-  arms: 'Arms',
-  eyes: 'Eyes',
-  eyebrows: 'Brows',
-  hairA: 'Front Hair',
-  hairB: 'Back Hair',
-  hairC: 'Side Hair',
-  hairD: 'Bangs',
-  topA: 'Shirt',
-  topB: 'Undershirt',
-  mid: 'Vest',
-  jacketA: 'Jacket',
-  jacketB: 'Coat',
-  shoulderA: 'Pauldrons',
-  shoulderB: 'Cape',
-  bottomA: 'Pants',
-  bottomB: 'Shorts',
-  shoes: 'Shoes',
-  socks: 'Socks',
-  gloves: 'Gloves',
-  accessoryA: 'Eyewear',
-  accessoryB: 'Hat',
-  accessoryC: 'Necklace',
-  accessoryD: 'Earrings',
-  backA: 'Wings',
-  backB: 'Backpack',
+  body: "Body",
+  head: "Head",
+  face: "Face",
+  ears: "Ears",
+  horns: "Horns",
+  arms: "Arms",
+  eyes: "Eyes",
+  eyebrows: "Brows",
+  hairA: "Front Hair",
+  hairB: "Back Hair",
+  hairC: "Side Hair",
+  hairD: "Bangs",
+  topA: "Shirt",
+  topB: "Undershirt",
+  mid: "Vest",
+  jacketA: "Jacket",
+  jacketB: "Coat",
+  shoulderA: "Pauldrons",
+  shoulderB: "Cape",
+  bottomA: "Pants",
+  bottomB: "Shorts",
+  shoes: "Shoes",
+  socks: "Socks",
+  gloves: "Gloves",
+  accessoryA: "Eyewear",
+  accessoryB: "Hat",
+  accessoryC: "Necklace",
+  accessoryD: "Earrings",
+  backA: "Wings",
+  backB: "Backpack",
 };
 
 const visibleCategories = Object.keys(displayNames);
@@ -89,7 +89,7 @@ const previewOffsets: Record<string, number> = {
 const ColorSelector = ({
   colors,
   selectedColor,
-  onSelect
+  onSelect,
 }: {
   colors: { name: string; color: string }[];
   selectedColor: string;
@@ -101,7 +101,7 @@ const ColorSelector = ({
         key={color}
         onClick={() => onSelect(color)}
         className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
-          selectedColor === color ? 'border-white ring-2 ring-blue-500' : 'border-neutral-600'
+          selectedColor === color ? "border-white ring-2 ring-blue-500" : "border-neutral-600"
         }`}
         style={{ backgroundColor: color }}
         title={name}
@@ -111,10 +111,10 @@ const ColorSelector = ({
 );
 
 const CharacterCreator = () => {
-  const { user, token } = useAuth();
+  const { user, token, setCurrentOutfitId } = useAuth();
   const [selectedClothes, setSelectedClothes] = useState({ ...defaultAssets });
   const [colors, setColors] = useState<Record<ColorGroupKey, string>>({ ...defaultColors });
-  const [clothingTab, setClothingTab] = useState<ColorGroupKey>('topA');
+  const [clothingTab, setClothingTab] = useState<ColorGroupKey>("topA");
   const [isSaving, setIsSaving] = useState(false);
   const [savedOutfitId, setSavedOutfitId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -122,30 +122,34 @@ const CharacterCreator = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingSave, setPendingSave] = useState(false);
   const [settingActive, setSettingActive] = useState(false);
+  const [activeSet, setActiveSet] = useState(false);
 
-  const doSave = useCallback(async (authToken: string | null) => {
-    setIsSaving(true);
-    setSaveError(null);
-    try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (authToken) {
-        headers["Authorization"] = `Bearer ${authToken}`;
+  const doSave = useCallback(
+    async (authToken: string | null) => {
+      setIsSaving(true);
+      setSaveError(null);
+      try {
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (authToken) {
+          headers["Authorization"] = `Bearer ${authToken}`;
+        }
+        const res = await fetch(`${API_URL}/outfit`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ clothes: selectedClothes, colors }),
+        });
+        if (!res.ok) throw new Error(`Save failed (${res.status})`);
+        const data = await res.json();
+        setSavedOutfitId(data.id);
+      } catch (e) {
+        setSaveError(e instanceof Error ? e.message : "Save failed");
+        setTimeout(() => setSaveError(null), 3000);
+      } finally {
+        setIsSaving(false);
       }
-      const res = await fetch(`${API_URL}/outfit`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ clothes: selectedClothes, colors }),
-      });
-      if (!res.ok) throw new Error(`Save failed (${res.status})`);
-      const data = await res.json();
-      setSavedOutfitId(data.id);
-    } catch (e) {
-      setSaveError(e instanceof Error ? e.message : "Save failed");
-      setTimeout(() => setSaveError(null), 3000);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [selectedClothes, colors]);
+    },
+    [selectedClothes, colors]
+  );
 
   const handleSave = async () => {
     if (!user) {
@@ -177,6 +181,12 @@ const CharacterCreator = () => {
         body: JSON.stringify({ outfit_id: savedOutfitId }),
       });
       if (!res.ok) throw new Error("Failed to set active sprite");
+      setActiveSet(true);
+      setCurrentOutfitId(savedOutfitId);
+      setTimeout(() => {
+        setSavedOutfitId(null);
+        setActiveSet(false);
+      }, 1000);
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : "Failed to set active sprite");
       setTimeout(() => setSaveError(null), 3000);
@@ -185,10 +195,12 @@ const CharacterCreator = () => {
     }
   };
 
-  const markdownSnippet = savedOutfitId ? `![My GitGarden Sprite](${API_URL}/sprite/${savedOutfitId})` : "";
+  const markdownSnippet = savedOutfitId
+    ? `![My GitGarden Sprite](${API_URL}/sprite/${savedOutfitId})`
+    : "";
 
   const updateColor = (group: ColorGroupKey, color: string) => {
-    setColors(prev => ({ ...prev, [group]: color }));
+    setColors((prev) => ({ ...prev, [group]: color }));
   };
 
   const colorGroup = getColorGroupForLayer(clothingTab);
@@ -196,9 +208,9 @@ const CharacterCreator = () => {
 
   const getColorPalette = (group: ColorGroupKey | null) => {
     if (!group) return clothingColors;
-    if (group === 'skin') return skinTones;
-    if (group === 'hair' || group === 'face') return hairColors;
-    if (group === 'eyes') return eyeColors;
+    if (group === "skin") return skinTones;
+    if (group === "hair" || group === "face") return hairColors;
+    if (group === "eyes") return eyeColors;
     return clothingColors;
   };
 
@@ -261,17 +273,23 @@ const CharacterCreator = () => {
         <div className="flex flex-col gap-4">
           <Card className="overflow-scroll flex-1">
             <CardHeader className="pb-2">
-              <CardTitle className="text-center">{displayNames[clothingTab] || clothingTab}</CardTitle>
+              <CardTitle className="text-center">
+                {displayNames[clothingTab] || clothingTab}
+              </CardTitle>
             </CardHeader>
             <CardContent className="max-h-50 md:max-h-75 flex flex-wrap gap-2 justify-center">
-              {(assetRegistry as Record<string, { id: string; name: string; url: string }[]>)[clothingTab]?.map((asset) => (
+              {(assetRegistry as Record<string, { id: string; name: string; url: string }[]>)[
+                clothingTab
+              ]?.map((asset) => (
                 <button
                   key={asset.id}
-                  onClick={() => setSelectedClothes(prev => ({ ...prev, [clothingTab]: asset.url }))}
+                  onClick={() =>
+                    setSelectedClothes((prev) => ({ ...prev, [clothingTab]: asset.url }))
+                  }
                   className={`relative w-14 h-14 md:w-16 md:h-16 overflow-hidden rounded border-2 transition-transform hover:scale-105 ${
                     selectedClothes[clothingTab as keyof typeof selectedClothes] === asset.url
-                      ? 'border-neutral-600 ring-2 ring-neutral-600'
-                      : 'border-neutral-600 hover:border-neutral-500'
+                      ? "border-neutral-600 ring-2 ring-neutral-600"
+                      : "border-neutral-600 hover:border-neutral-500"
                   }`}
                 >
                   <img
@@ -290,7 +308,7 @@ const CharacterCreator = () => {
               {colorGroup && (
                 <ColorSelector
                   colors={getColorPalette(colorGroup)}
-                  selectedColor={currentColor ?? ''}
+                  selectedColor={currentColor ?? ""}
                   onSelect={(c) => updateColor(colorGroup, c)}
                 />
               )}
@@ -302,8 +320,8 @@ const CharacterCreator = () => {
           className="flex items-center justify-center overflow-hidden relative min-h-75 md:min-h-100"
           style={{
             backgroundImage: `url(${DisplayBackgroundGif})`,
-            backgroundSize: '430%',
-            backgroundPosition: 'center bottom',
+            backgroundSize: "430%",
+            backgroundPosition: "center bottom",
           }}
         >
           <div className="absolute inset-0 bg-neutral-800 opacity-30 z-0" />
@@ -314,7 +332,13 @@ const CharacterCreator = () => {
       </div>
 
       {savedOutfitId && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setSavedOutfitId(null)}>
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+          onClick={() => {
+            setSavedOutfitId(null);
+            setActiveSet(false);
+          }}
+        >
           <Card className="max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
             <CardHeader>
               <CardTitle>Outfit Saved!</CardTitle>
@@ -336,7 +360,10 @@ const CharacterCreator = () => {
                   }}
                   className="px-3"
                 >
-                  <Icon icon={copied ? "pixelarticons:check" : "pixelarticons:copy"} className="w-5! h-5!" />
+                  <Icon
+                    icon={copied ? "pixelarticons:check" : "pixelarticons:copy"}
+                    className="w-5! h-5!"
+                  />
                 </Button>
               </div>
               {user && (
@@ -345,10 +372,16 @@ const CharacterCreator = () => {
                   disabled={settingActive}
                   className="w-full bg-green-600 hover:bg-green-700"
                 >
-                  {settingActive ? "Setting..." : "Set as active sprite"}
+                  {settingActive ? "Setting..." : activeSet ? "Active ✓" : "Set as active sprite"}
                 </Button>
               )}
-              <Button onClick={() => setSavedOutfitId(null)} className="w-full">
+              <Button
+                onClick={() => {
+                  setSavedOutfitId(null);
+                  setActiveSet(false);
+                }}
+                className="w-full"
+              >
                 Close
               </Button>
             </CardContent>
