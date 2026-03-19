@@ -83,10 +83,13 @@ const Home = () => {
             </figcaption>
           </figure>
           <figure>
-            <img
-              src="/assets/character-creator-preview.png"
-              alt="Character Creator"
+            <video
+              src="/assets/character-creator-preview.mov"
               className="rounded-xl border border-neutral-800 w-full h-auto"
+              autoPlay
+              loop
+              muted
+              playsInline
             />
             <figcaption className="text-xs text-neutral-500 text-center mt-2">
               Character Creator
