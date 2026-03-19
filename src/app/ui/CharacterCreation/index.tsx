@@ -31,7 +31,6 @@ const displayNames: Record<string, string> = {
   hairA: "Front Hair",
   hairB: "Back Hair",
   hairC: "Side Hair",
-  hairD: "Bangs",
   topA: "Shirt",
   topB: "Undershirt",
   mid: "Vest",
@@ -49,7 +48,6 @@ const displayNames: Record<string, string> = {
   accessoryC: "Necklace",
   accessoryD: "Earrings",
   backA: "Wings",
-  backB: "Backpack",
 };
 
 const visibleCategories = Object.keys(displayNames);
@@ -255,14 +253,7 @@ const CharacterCreator = () => {
                   className="flex items-center gap-2 p-1 hover:bg-neutral-600 rounded cursor-pointer"
                   onClick={() => setClothingTab(category as ColorGroupKey)}
                 >
-                  <div className="w-10 h-10 overflow-hidden relative">
-                    <img
-                      src={(assetRegistry as Record<string, { url: string }[]>)[category]?.[0]?.url}
-                      alt={displayNames[category]}
-                      className="absolute w-full h-full [image-rendering:pixelated] object-none scale-[2.5] origin-center"
-                      style={{ objectPosition: `3px ${(previewOffsets[category] ?? 0) * 0.6}px` }}
-                    />
-                  </div>
+                  <div className="w-10 h-10 overflow-hidden relative"></div>
                   <span className="text-sm text-neutral-200">{displayNames[category]}</span>
                 </div>
               ))}

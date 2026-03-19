@@ -4,17 +4,19 @@ import {
   hairColors,
   eyeColors,
   clothingColors,
-  type ColorGroupKey
+  type ColorGroupKey,
 } from "./colorConfig";
 
 const SKIP_CATEGORIES = [
-  'backA',
-  'backB',
-  'shoulderA',
-  'shoulderB',
-  'accessoryB',
-  'accessoryC',
-  'accessoryD',
+  "backA",
+  "backB",
+  "shoulderA",
+  "shoulderB",
+  "accessoryB",
+  "accessoryC",
+  "accessoryD",
+  "hairD",
+  "face",
 ];
 
 function randomFromArray<T>(arr: T[]): T {
