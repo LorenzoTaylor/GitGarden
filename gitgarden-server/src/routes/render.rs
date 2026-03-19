@@ -85,7 +85,7 @@ fn composite(dst: &mut RgbaImage, src: &RgbaImage, x: i64, y: i64) {
 }
 
 /// How many pixels to shift the background crop downward into the source image.
-const BG_Y_SHIFT: u32 = 150;
+const BG_Y_SHIFT: u32 = 0;
 
 /// Scale, crop (shifted down), and apply dark overlay to one background GIF frame.
 fn bake_bg_frame(raw: &RgbaImage) -> RgbaImage {

@@ -64,7 +64,12 @@ const CharacterDisplay = forwardRef<HTMLCanvasElement, CharacterDisplayProps>((p
       { key: "socks", z: 40, src: assets.socks, color: getColorForLayer("socks", colors) },
       { key: "shoes", z: 41, src: assets.shoes, color: getColorForLayer("shoes", colors) },
       { key: "bottomA", z: 50, src: assets.bottomA, color: getColorForLayer("bottomA", colors) },
-      { key: "bottomB", z: 51, src: assets.bottomB, color: getColorForLayer("bottomB", colors) },
+      {
+        key: "bottomB",
+        z: 200,
+        src: assets.bottomB,
+        color: colors.bottomB === "" ? null : getColorForLayer("bottomB", colors),
+      },
       { key: "mid", z: 55, src: assets.mid, color: getColorForLayer("mid", colors) },
       { key: "topA", z: 60, src: assets.topA, color: getColorForLayer("topA", colors) },
       { key: "topB", z: 61, src: assets.topB, color: getColorForLayer("topB", colors) },

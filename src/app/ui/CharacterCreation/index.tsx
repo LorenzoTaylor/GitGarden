@@ -32,14 +32,13 @@ const displayNames: Record<string, string> = {
   hairB: "Back Hair",
   hairC: "Side Hair",
   topA: "Shirt",
-  topB: "Undershirt",
-  mid: "Vest",
+  topB: "Sleeves",
+
   jacketA: "Jacket",
-  jacketB: "Coat",
   shoulderA: "Pauldrons",
   shoulderB: "Cape",
   bottomA: "Pants",
-  bottomB: "Shorts",
+  bottomB: "Overalls",
   shoes: "Shoes",
   socks: "Socks",
   gloves: "Gloves",
@@ -81,30 +80,6 @@ const previewOffsets: Record<string, number> = {
   shoes: -15,
   gloves: -7,
 };
-
-const ColorSelector = ({
-  colors,
-  selectedColor,
-  onSelect,
-}: {
-  colors: { name: string; color: string }[];
-  selectedColor: string;
-  onSelect: (color: string) => void;
-}) => (
-  <div className="flex gap-1 flex-wrap">
-    {colors.map(({ name, color }) => (
-      <button
-        key={color}
-        onClick={() => onSelect(color)}
-        className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
-          selectedColor === color ? "border-white ring-2 ring-blue-500" : "border-neutral-600"
-        }`}
-        style={{ backgroundColor: color }}
-        title={name}
-      />
-    ))}
-  </div>
-);
 
 const CharacterCreator = () => {
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
@@ -323,11 +298,45 @@ const CharacterCreator = () => {
           <Card className="overflow-hidden">
             <CardContent className="py-3">
               {colorGroup && (
-                <ColorSelector
-                  colors={getColorPalette(colorGroup)}
-                  selectedColor={currentColor ?? ""}
-                  onSelect={(c) => updateColor(colorGroup, c)}
-                />
+                <div className="flex gap-1 flex-wrap">
+                  {clothingTab === "bottomB" && (
+                    <button
+                      onClick={() => updateColor("bottomB", "")}
+                      className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 overflow-hidden relative ${
+                        colors.bottomB === ""
+                          ? "border-white ring-2 ring-blue-500"
+                          : "border-neutral-600"
+                      }`}
+                      style={{ backgroundColor: "#ffffff" }}
+                      title="Original"
+                    >
+                      <svg viewBox="0 0 24 24" className="absolute inset-0 w-full h-full">
+                        <line
+                          x1="2"
+                          y1="2"
+                          x2="22"
+                          y2="22"
+                          stroke="#ef4444"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                  {getColorPalette(colorGroup).map(({ name, color }) => (
+                    <button
+                      key={color}
+                      onClick={() => updateColor(colorGroup, color)}
+                      className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
+                        (currentColor ?? "") === color
+                          ? "border-white ring-2 ring-blue-500"
+                          : "border-neutral-600"
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={name}
+                    />
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
