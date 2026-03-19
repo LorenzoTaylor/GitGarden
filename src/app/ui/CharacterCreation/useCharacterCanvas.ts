@@ -1,5 +1,11 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
-import { loadImage, colorizeSprite, extractFrame, getCacheKey, type ColorizeMode } from './canvasUtils';
+import { useEffect, useRef, useState, useMemo } from "react";
+import {
+  loadImage,
+  colorizeSprite,
+  extractFrame,
+  getCacheKey,
+  type ColorizeMode,
+} from "./canvasUtils";
 
 export interface LayerConfig {
   key: string;
@@ -19,6 +25,7 @@ interface UseCharacterCanvasOptions {
   scale?: number;
   canvasWidth?: number;
   canvasHeight?: number;
+  yOffset?: number;
 }
 
 interface UseCharacterCanvasResult {
@@ -36,6 +43,7 @@ export function useCharacterCanvas({
   scale = 3,
   canvasWidth,
   canvasHeight,
+  yOffset = 0,
 }: UseCharacterCanvasOptions): UseCharacterCanvasResult {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,10 +51,7 @@ export function useCharacterCanvas({
   const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
   const colorizedCache = useRef<Map<string, HTMLCanvasElement>>(new Map());
 
-  const sortedLayers = useMemo(
-    () => [...layers].sort((a, b) => a.z - b.z),
-    [layers]
-  );
+  const sortedLayers = useMemo(() => [...layers].sort((a, b) => a.z - b.z), [layers]);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,9 +60,9 @@ export function useCharacterCanvas({
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (!ctx) {
-        setError('Could not get canvas context');
+        setError("Could not get canvas context");
         return;
       }
 
@@ -65,7 +70,7 @@ export function useCharacterCanvas({
       setError(null);
 
       try {
-        const uniqueSrcs = [...new Set(sortedLayers.map(l => l.src))];
+        const uniqueSrcs = [...new Set(sortedLayers.map((l) => l.src))];
         await Promise.all(
           uniqueSrcs.map(async (src) => {
             if (!imageCache.current.has(src)) {
@@ -87,7 +92,7 @@ export function useCharacterCanvas({
         const actualCanvasWidth = canvasWidth ?? drawWidth;
         const actualCanvasHeight = canvasHeight ?? drawHeight;
         const offsetX = Math.floor((actualCanvasWidth - drawWidth) / 2);
-        const offsetY = Math.floor((actualCanvasHeight - drawHeight) / 2);
+        const offsetY = Math.floor((actualCanvasHeight - drawHeight) / 2) + yOffset;
 
         for (const layer of sortedLayers) {
           const img = imageCache.current.get(layer.src);
@@ -105,7 +110,7 @@ export function useCharacterCanvas({
                 frameY,
                 width,
                 height,
-                layer.mode ?? 'normal'
+                layer.mode ?? "normal"
               );
             } else {
               layerCanvas = extractFrame(img, frameX, frameY, width, height);
@@ -119,7 +124,7 @@ export function useCharacterCanvas({
         setIsLoading(false);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Unknown error');
+          setError(err instanceof Error ? err.message : "Unknown error");
           setIsLoading(false);
         }
       }
@@ -130,7 +135,7 @@ export function useCharacterCanvas({
     return () => {
       cancelled = true;
     };
-  }, [sortedLayers, width, height, frameX, frameY, scale, canvasWidth, canvasHeight]);
+  }, [sortedLayers, width, height, frameX, frameY, scale, canvasWidth, canvasHeight, yOffset]);
 
   return { canvasRef, isLoading, error };
 }

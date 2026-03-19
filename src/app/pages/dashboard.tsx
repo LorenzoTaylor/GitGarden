@@ -92,7 +92,7 @@ const Dashboard = () => {
                   <Icon icon="pixelarticons:user" className="w-10 h-10" />
                 </div>
               )}
-              <div className="flex-1 min-w-0 space-y-3">
+              <div className="flex-1 min-w-0 w-full space-y-3">
                 <div>
                   <h2 className="text-lg font-semibold text-green-400">Active Sprite</h2>
                   <p className="text-sm text-neutral-400 mt-1">
@@ -164,14 +164,14 @@ const Dashboard = () => {
                   }
                   className="bg-neutral-900"
                 >
-                  <CardContent className="p-4 flex items-center gap-6">
+                  <CardContent className="p-4 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                     <img
                       src={`${API_URL}/sprite/${outfit.id}/preview?scale=6`}
                       alt="Sprite"
-                      className="w-56 h-56 [image-rendering:pixelated] shrink-0"
+                      className="w-32 h-32 sm:w-56 sm:h-56 [image-rendering:pixelated] shrink-0"
                     />
 
-                    <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex-1 min-w-0 space-y-2 w-full">
                       {activeOutfitId === outfit.id && (
                         <span className="inline-flex items-center gap-1 text-xs text-green-400 font-medium">
                           <Icon icon="pixelarticons:check-double" className="w-3.5 h-3.5" />
@@ -184,10 +184,10 @@ const Dashboard = () => {
                       </code>
                     </div>
 
-                    <div className="flex flex-col gap-2 shrink-0">
+                    <div className="flex flex-row sm:flex-col gap-2 shrink-0 w-full sm:w-auto">
                       <Button
                         onClick={() => copyMarkdown(outfit.id)}
-                        className="bg-neutral-800 hover:bg-neutral-700 text-white flex items-center gap-1.5 text-xs px-3 w-full"
+                        className="bg-neutral-800 hover:bg-neutral-700 text-white flex items-center gap-1.5 text-xs px-3 flex-1 sm:flex-none justify-center"
                       >
                         <Icon
                           icon={copied === outfit.id ? "pixelarticons:check" : "pixelarticons:copy"}
@@ -198,7 +198,7 @@ const Dashboard = () => {
                       <Button
                         onClick={() => setActive(outfit.id)}
                         disabled={settingActive === outfit.id || activeOutfitId === outfit.id}
-                        className="bg-green-800 hover:bg-green-700 text-white text-xs px-3 disabled:opacity-40 w-full"
+                        className="bg-green-800 hover:bg-green-700 text-white text-xs px-3 disabled:opacity-40 flex-1 sm:flex-none"
                       >
                         {settingActive === outfit.id
                           ? "Setting..."

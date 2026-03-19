@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { assetRegistry, defaultAssets } from "@/assets/asset-registry";
 import CharacterDisplay from "./CharacterDisplay";
 import DisplayBackgroundGif from "./DisplayBackground.gif";
@@ -46,7 +46,6 @@ const displayNames: Record<string, string> = {
   accessoryA: "Eyewear",
   accessoryB: "Hat",
   accessoryC: "Necklace",
-  accessoryD: "Earrings",
   backA: "Wings",
 };
 
@@ -75,7 +74,6 @@ const previewOffsets: Record<string, number> = {
   accessoryA: 5,
   accessoryB: 11,
   accessoryC: -1,
-  accessoryD: 11,
   backA: -1,
   bottomA: -10,
   bottomB: -4,
@@ -109,6 +107,7 @@ const ColorSelector = ({
 );
 
 const CharacterCreator = () => {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
   const { user, token, setCurrentOutfitId } = useAuth();
   const [selectedClothes, setSelectedClothes] = useState({ ...defaultAssets });
   const [colors, setColors] = useState<Record<ColorGroupKey, string>>({ ...defaultColors });
@@ -119,6 +118,7 @@ const CharacterCreator = () => {
   const [copied, setCopied] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingSave, setPendingSave] = useState(false);
+  const [pendingAutoSave, setPendingAutoSave] = useState(false);
   const [settingActive, setSettingActive] = useState(false);
   const [activeSet, setActiveSet] = useState(false);
 
@@ -152,6 +152,10 @@ const CharacterCreator = () => {
   const handleSave = async () => {
     if (!user) {
       setPendingSave(true);
+      localStorage.setItem(
+        "gitgarden_pending_outfit",
+        JSON.stringify({ clothes: selectedClothes, colors })
+      );
       setShowAuthModal(true);
       return;
     }
@@ -161,10 +165,30 @@ const CharacterCreator = () => {
   const handleAuthSuccess = () => {
     if (pendingSave) {
       setPendingSave(false);
+      localStorage.removeItem("gitgarden_pending_outfit");
       const stored = localStorage.getItem("token");
       doSave(stored);
     }
   };
+
+  // On user auth, restore any stored outfit and flag auto-save
+  useEffect(() => {
+    if (!user) return;
+    const stored = localStorage.getItem("gitgarden_pending_outfit");
+    if (!stored) return;
+    localStorage.removeItem("gitgarden_pending_outfit");
+    const { clothes, colors: storedColors } = JSON.parse(stored);
+    setSelectedClothes(clothes);
+    setColors(storedColors);
+    setPendingAutoSave(true);
+  }, [user]);
+
+  // Fires after state is committed from the above effect
+  useEffect(() => {
+    if (!pendingAutoSave || !token) return;
+    setPendingAutoSave(false);
+    doSave(token);
+  }, [pendingAutoSave, token, doSave]);
 
   const handleSetActive = async () => {
     if (!savedOutfitId || !token) return;
@@ -213,7 +237,7 @@ const CharacterCreator = () => {
   };
 
   return (
-    <div className="dark w-full max-w-4xl mx-auto p-4 bg-neutral-900 rounded-xl">
+    <div className="dark w-full max-w-4xl mx-auto p-2 sm:p-4 bg-neutral-900 rounded-xl">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg md:text-xl text-neutral-100">Character Creator</h1>
         <div className="flex gap-2">
@@ -223,7 +247,7 @@ const CharacterCreator = () => {
             className="bg-green-800 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
           >
             <Icon icon="pixelarticons:save" className="w-6! h-6!" />
-            {isSaving ? "Saving..." : "Save"}
+            <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save"}</span>
           </Button>
           <Button
             onClick={() => {
@@ -233,7 +257,7 @@ const CharacterCreator = () => {
             className="bg-green text-white font-bold py-2 px-4 rounded flex items-center gap-2"
           >
             <Icon icon="pixelarticons:dice" className="w-6! h-6!" />
-            Randomize
+            <span className="hidden sm:inline">Randomize</span>
           </Button>
         </div>
       </div>
@@ -241,11 +265,11 @@ const CharacterCreator = () => {
       <hr className="border-neutral-800 mb-4" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="overflow-hidden">
+        <Card className="order-2 md:order-1 overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle>Assets</CardTitle>
           </CardHeader>
-          <CardContent className="overflow-y-auto max-h-75 md:max-h-125">
+          <CardContent className="overflow-y-auto max-h-52 md:max-h-125">
             <ul className="w-full space-y-1">
               {visibleCategories.map((category) => (
                 <div
@@ -261,7 +285,7 @@ const CharacterCreator = () => {
           </CardContent>
         </Card>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 order-3 md:order-2">
           <Card className="overflow-scroll flex-1">
             <CardHeader className="pb-2">
               <CardTitle className="text-center">
@@ -287,7 +311,9 @@ const CharacterCreator = () => {
                     src={asset.url}
                     alt={asset.name}
                     className="absolute w-full h-full [image-rendering:pixelated] object-none scale-[4] origin-center"
-                    style={{ objectPosition: `6px ${previewOffsets[clothingTab] ?? 0}px` }}
+                    style={{
+                      objectPosition: `${isMobile ? 2 : 6}px ${(previewOffsets[clothingTab] ?? 0) - (isMobile ? 3 : 0)}px`,
+                    }}
                   />
                 </button>
               ))}
@@ -308,7 +334,7 @@ const CharacterCreator = () => {
         </div>
 
         <Card
-          className="flex items-center justify-center overflow-hidden relative min-h-75 md:min-h-100"
+          className="order-1 md:order-3 flex items-center justify-center overflow-hidden relative min-h-48 md:min-h-100"
           style={{
             backgroundImage: `url(${DisplayBackgroundGif})`,
             backgroundSize: "430%",
