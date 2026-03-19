@@ -15,6 +15,7 @@ use crate::auth::password::{hash_password, verify_password};
 use crate::email::send_verification_email;
 use crate::models::users::{User, UserResponse};
 use crate::routes::validation::{validate_password, validate_username};
+use tracing::error;
 
 type ApiError = (StatusCode, Json<serde_json::Value>);
 
@@ -308,7 +309,7 @@ pub async fn github_auth(
 ) -> Result<Json<AuthResponse>, ApiError> {
     // Exchange code for access token
     let client = reqwest::Client::new();
-    let token_response = client
+    let token_res = client
         .post("https://github.com/login/oauth/access_token")
         .json(&serde_json::json!({
             "client_id": state.github_client_id,
@@ -318,25 +319,31 @@ pub async fn github_auth(
         .header("Accept", "application/json")
         .send()
         .await
-        .map_err(|_| internal())?
+        .map_err(|e| { error!("GitHub token exchange request failed: {e}"); internal() })?;
+
+    let token_response = token_res
         .json::<GithubTokenResponse>()
         .await
-        .map_err(|_| internal())?;
+        .map_err(|e| { error!("Failed to parse GitHub token response: {e}"); internal() })?;
+
+    if token_response.access_token.is_empty() {
+        error!("GitHub returned empty access_token — client_id/secret mismatch or expired code");
+        return Err(internal());
+    }
 
     // Fetch GitHub user info
-    let github_user = client
+    let user_res = client
         .get("https://api.github.com/user")
-        .header(
-            "Authorization",
-            format!("Bearer {}", token_response.access_token),
-        )
+        .header("Authorization", format!("Bearer {}", token_response.access_token))
         .header("User-Agent", "GitGarden")
         .send()
         .await
-        .map_err(|_| internal())?
+        .map_err(|e| { error!("GitHub user fetch request failed: {e}"); internal() })?;
+
+    let github_user = user_res
         .json::<GithubUser>()
         .await
-        .map_err(|_| internal())?;
+        .map_err(|e| { error!("Failed to parse GitHub user response: {e}"); internal() })?;
 
     let email = github_user
         .email
@@ -355,9 +362,10 @@ pub async fn github_auth(
     .bind(&email)
     .fetch_one(&state.pool)
     .await
-    .map_err(|_| internal())?;
+    .map_err(|e| { error!("DB upsert failed for GitHub user {}: {e}", github_user.login); internal() })?;
 
-    let token = create_token(user.id, &state.jwt_secret).map_err(|_| internal())?;
+    let token = create_token(user.id, &state.jwt_secret)
+        .map_err(|e| { error!("JWT creation failed: {e}"); internal() })?;
 
     Ok(Json(AuthResponse {
         token,

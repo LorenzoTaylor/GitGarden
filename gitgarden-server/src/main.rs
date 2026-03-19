@@ -5,6 +5,7 @@ use std::time::Instant;
 
 use axum::Router;
 use axum::http::{HeaderValue, Method, header};
+use tower_http::trace::TraceLayer;
 use github::GitHubStatsCache;
 use image::{DynamicImage, RgbaImage};
 use routes::app_router;
@@ -131,6 +132,7 @@ async fn main() {
 
     let app = Router::new()
         .nest("/api", app_router(state, auth_limiter))
+        .layer(TraceLayer::new_for_http())
         .layer(cors);
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
