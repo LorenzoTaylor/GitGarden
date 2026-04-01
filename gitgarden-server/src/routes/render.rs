@@ -25,7 +25,7 @@ use crate::BakedBg;
 use crate::models::outfit::Outfit;
 use crate::sprite;
 
-const GIF_CACHE_TTL: std::time::Duration = std::time::Duration::from_secs(120);
+const GIF_CACHE_TTL: std::time::Duration = std::time::Duration::from_secs(604800); // 1 week
 
 const CARD_W: u32 = 900;
 const CARD_H: u32 = 280;
@@ -347,7 +347,7 @@ async fn render_card(
     Ok(gif_buf.into_inner())
 }
 
-async fn get_or_render_card(
+pub(crate) async fn get_or_render_card(
     state: &AppState,
     outfit: Option<Outfit>,
     outfit_id: Option<Uuid>,
