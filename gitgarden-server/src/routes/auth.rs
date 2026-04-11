@@ -351,15 +351,16 @@ pub async fn github_auth(
 
     // Find or create user — GitHub accounts are auto-verified
     let user = sqlx::query_as::<_, User>(&format!(
-        "INSERT INTO users (github_id, github_username, username, email, email_verified)
-         VALUES ($1, $2, $3, $4, TRUE)
-         ON CONFLICT (github_id) DO UPDATE SET github_username = $2
+        "INSERT INTO users (github_id, github_username, username, email, email_verified, github_access_token)
+         VALUES ($1, $2, $3, $4, TRUE, $5)
+         ON CONFLICT (github_id) DO UPDATE SET github_username = $2, github_access_token = $5
          RETURNING {USER_SELECT}"
     ))
     .bind(github_user.id)
     .bind(&github_user.login)
     .bind(&github_user.login)
     .bind(&email)
+    .bind(&token_response.access_token)
     .fetch_one(&state.pool)
     .await
     .map_err(|e| { error!("DB upsert failed for GitHub user {}: {e}", github_user.login); internal() })?;

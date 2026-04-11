@@ -15,7 +15,7 @@ use image::{
     codecs::gif::{GifDecoder, GifEncoder, Repeat},
     Frame,
 };
-use imageproc::drawing::{draw_line_segment_mut, draw_text_mut};
+use imageproc::drawing::draw_text_mut;
 use serde::Deserialize;
 use tracing::error;
 use uuid::Uuid;
@@ -266,10 +266,15 @@ async fn render_card(
 
     // ── 4. Fetch stats + bake text overlay ───────────────────────────────────
     let stats_overlay: Option<RgbaImage> = if let Some(ref gh_user) = github_username {
-        if !state.github_token.is_empty() {
+        let user_token = crate::github::get_user_github_token(&state.pool, gh_user).await;
+        let token = user_token
+            .as_deref()
+            .filter(|t| !t.is_empty())
+            .unwrap_or(&state.github_token);
+        if !token.is_empty() {
             match crate::github::fetch_github_stats(
                 gh_user,
-                &state.github_token,
+                token,
                 &state.github_stats_cache,
             )
             .await

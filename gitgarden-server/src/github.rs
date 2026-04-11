@@ -3,6 +3,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use serde::Deserialize;
+use sqlx::PgPool;
 use tokio::sync::RwLock;
 use tracing::error;
 
@@ -41,6 +42,8 @@ struct GraphQlUser {
 struct ContributionsCollection {
     #[serde(rename = "totalCommitContributions")]
     total_commit_contributions: u32,
+    #[serde(rename = "restrictedContributionsCount")]
+    restricted_contributions_count: u32,
     #[serde(rename = "contributionCalendar")]
     contribution_calendar: ContributionCalendar,
 }
@@ -80,6 +83,20 @@ struct Repository {
     stargazer_count: u32,
 }
 
+/// Look up a stored GitHub OAuth token for a user by their GitHub username.
+/// Returns `None` if the user doesn't exist or hasn't connected via GitHub OAuth.
+pub async fn get_user_github_token(pool: &PgPool, github_username: &str) -> Option<String> {
+    sqlx::query_scalar::<_, Option<String>>(
+        "SELECT github_access_token FROM users WHERE github_username = $1",
+    )
+    .bind(github_username)
+    .fetch_optional(pool)
+    .await
+    .ok()
+    .flatten()
+    .flatten()
+}
+
 pub async fn fetch_github_stats(
     username: &str,
     token: &str,
@@ -105,6 +122,7 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
   user(login: $login) {
     contributionsCollection(from: $from, to: $to) {
       totalCommitContributions
+      restrictedContributionsCount
       contributionCalendar {
         weeks {
           contributionDays {
@@ -158,9 +176,8 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
         .and_then(|d| d.user)
         .ok_or_else(|| "GitHub user not found".to_string())?;
 
-    let commits_last_year = user_data
-        .contributions_collection
-        .total_commit_contributions;
+    let commits_last_year = user_data.contributions_collection.total_commit_contributions
+        + user_data.contributions_collection.restricted_contributions_count;
     let merged_prs = user_data.pull_requests.total_count;
     let total_stars: u32 = user_data
         .repositories

@@ -60,16 +60,23 @@ pub async fn get_card(
         None
     };
 
-    // Check GitHub token
-    if state.github_token.is_empty() {
-        error!("GITHUB_TOKEN is not configured");
+    // Resolve the best available token: prefer the user's own OAuth token so private
+    // contributions are included; fall back to the server-side GITHUB_TOKEN.
+    let user_token = github::get_user_github_token(&state.pool, &github_username).await;
+    let token = user_token
+        .as_deref()
+        .filter(|t| !t.is_empty())
+        .unwrap_or(&state.github_token);
+
+    if token.is_empty() {
+        error!("No GitHub token available for {}", github_username);
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
 
     // Fetch GitHub stats
     let stats = github::fetch_github_stats(
         &github_username,
-        &state.github_token,
+        token,
         &state.github_stats_cache,
     )
     .await

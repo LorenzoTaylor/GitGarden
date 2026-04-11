@@ -186,6 +186,7 @@ pub enum ColorizeMode {
 pub const FRAME_SIZE: u32 = 48;
 
 /// Number of animation frames per row in a sprite sheet.
+#[allow(dead_code)]
 pub fn sheet_frame_count(img_width: u32) -> u32 {
     (img_width / FRAME_SIZE).max(1)
 }
